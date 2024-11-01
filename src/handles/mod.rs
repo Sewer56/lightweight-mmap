@@ -60,8 +60,7 @@ mod tests {
     fn can_open_read_only_file_handle() {
         let path = Path::new("assets/test_file.txt");
         let path_str = path.to_str().unwrap();
-
-        let handle = ReadOnlyFileHandle::open(path_str).unwrap();
+        let handle = ReadOnlyFileHandle::open("assets/test_file.txt").unwrap();
 
         #[cfg(unix)]
         {

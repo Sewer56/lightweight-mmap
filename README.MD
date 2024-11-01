@@ -41,7 +41,15 @@ This crate provides the facilities for opening a file and mapping it to memory
 with the minimal amount of code generated. Use this if you're a fellow freak trying to
 minimize code size.
 
-For more 
+For a more feature rich library, see [memmap2-rs] and [mmap-rs].
+
+## Examples
+
+### Open a Read Only File Handle
+
+```rust
+let handle = ReadOnlyFileHandle::open("assets/test_file.txt").unwrap();
+```
 
 ## Development
 
@@ -56,4 +64,6 @@ Licensed under [MIT](./LICENSE).
 [codecov]: https://about.codecov.io/
 [crates-io-key]: https://crates.io/settings/tokens
 [nuget-key]: https://www.nuget.org/account/apikeys
+[memmap2-rs]: https://github.com/RazrFalcon/memmap2-rs
+[mmap-rs]: https://github.com/StephanvanSchaik/mmap-rs
 [reloaded-license]: https://reloaded-project.github.io/Reloaded.MkDocsMaterial.Themes.R2/Pages/license/
