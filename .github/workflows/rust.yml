@@ -60,14 +60,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build C Libraries and Run Tests
+      - name: Build Libraries and Run Tests
         uses: Reloaded-Project/devops-rust-lightweight-binary@v1
         with:
           crate-name: ${{ github.event.repository.name }}
           target: ${{ matrix.target }}
           use-pgo: ${{ matrix.use-pgo && env.build-with-pgo }}
           use-cross: ${{ matrix.use-cross }}
-          features: "c-exports"
           build-library: true
           run-tests-and-coverage: ${{ matrix.target != 'aarch64-pc-windows-msvc' }}
           codecov-token: ${{ secrets.CODECOV_TOKEN }}
@@ -105,33 +104,13 @@ jobs:
           setup-rust-cache: true
           upload-coverage: true
           codecov-token: ${{ secrets.CODECOV_TOKEN }}
-          features: "c-exports"
           use-cross: true
-
-  build-c-headers:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Generate C++ bindings
-        uses: Reloaded-Project/devops-rust-cbindgen@v1
-        with:
-          config-file: cbindgen_cpp.toml
-          output-header-file: bindings_cpp.hpp
-
-      - name: Generate C bindings
-        uses: Reloaded-Project/devops-rust-cbindgen@v1
-        with:
-          config-file: cbindgen_c.toml
-          output-header-file: bindings_c.h
 
   publish-crate:
     permissions:
       contents: write
 
-    needs: [build-and-test,build-c-headers,test-on-wine]
+    needs: [build-and-test,test-on-wine]
     # Publish only on tags
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
