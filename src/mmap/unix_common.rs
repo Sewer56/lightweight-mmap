@@ -17,6 +17,7 @@ pub(crate) fn create_mmap(
     let page_size = get_allocation_granularity();
     let aligned_offset = offset & !(page_size as u64 - 1);
     let offset_adjustment = offset - aligned_offset;
+    let aligned_offset = aligned_offset as i64; // Re-cast as signed
 
     // Adjust length to account for page alignment
     let adjusted_len = len + (offset_adjustment as usize);
@@ -30,7 +31,7 @@ pub(crate) fn create_mmap(
                 protection,
                 MAP_SHARED,
                 fd,
-                aligned_offset as i64,
+                aligned_offset as libc::off64_t,
             )
         }
         #[cfg(not(target_env = "gnu"))]
@@ -41,7 +42,7 @@ pub(crate) fn create_mmap(
                 protection,
                 MAP_SHARED,
                 fd,
-                aligned_offset as i64,
+                aligned_offset as libc::off_t,
             )
         }
     };
