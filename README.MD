@@ -107,6 +107,8 @@ Create a new file with pre-allocated size:
 let handle = ReadWriteFileHandle::create_preallocated("assets/test_file.txt", 1024).unwrap();
 ```
 
+This will create a new file or overwrite an existing file.
+
 ### Memory Mapping
 
 Create a read-only memory mapping:
