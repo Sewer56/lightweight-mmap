@@ -22,14 +22,28 @@ pub(crate) fn create_mmap(
     let adjusted_len = len + (offset_adjustment as usize);
 
     let ptr = unsafe {
-        mmap64(
-            ptr::null_mut(),
-            adjusted_len,
-            protection,
-            MAP_SHARED,
-            fd,
-            aligned_offset as i64,
-        )
+        #[cfg(target_env = "gnu")]
+        {
+            mmap64(
+                ptr::null_mut(),
+                adjusted_len,
+                protection,
+                MAP_SHARED,
+                fd,
+                aligned_offset as i64,
+            )
+        }
+        #[cfg(not(target_env = "gnu"))]
+        {
+            mmap(
+                ptr::null_mut(),
+                adjusted_len,
+                protection,
+                MAP_SHARED,
+                fd,
+                aligned_offset as i64,
+            )
+        }
     };
 
     if ptr == MAP_FAILED {
