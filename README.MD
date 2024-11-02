@@ -192,4 +192,4 @@ Licensed under [MIT](./LICENSE).
 [sewer56-archives-nx]: https://github.com/Sewer56/sewer56-archives-nx
 [itoa]: https://crates.io/crates/itoa
 [nanokit]: https://crates.io/crates/nanokit
-[cargo-bloat]: https://github.com/RazrFalcon/cargo-bloat
+[cargo bloat]: https://github.com/RazrFalcon/cargo-bloat
