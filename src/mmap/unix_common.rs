@@ -22,7 +22,7 @@ pub(crate) fn create_mmap(
     let adjusted_len = len + (offset_adjustment as usize);
 
     let ptr = unsafe {
-        mmap(
+        mmap64(
             ptr::null_mut(),
             adjusted_len,
             protection,

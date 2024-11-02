@@ -31,12 +31,12 @@ pub(crate) fn open_with_flags(path: &str, flags: c_int) -> Result<c_int, HandleO
 
 #[cfg(unix)]
 pub fn get_file_size(fd: c_int) -> Result<i64, HandleOpenError> {
-    let mut st: libc::stat = unsafe { zeroed() };
-    let ret = unsafe { fstat(fd, &mut st) };
+    let mut st: libc::stat64 = unsafe { zeroed() };
+    let ret = unsafe { fstat64(fd, &mut st) };
 
     if ret == -1 {
         Err(HandleOpenError::FailedToGetFileSize(errno::errno().0))
     } else {
-        Ok(st.st_size)
+        Ok(st.st_size as i64)
     }
 }
