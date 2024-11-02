@@ -25,8 +25,6 @@ pub struct ReadOnlyFileHandle {
     inner: InnerHandle,
 }
 
-unsafe impl Send for ReadOnlyFileHandle {}
-
 impl ReadOnlyFileHandle {
     /// Opens a file in read-only mode with shared access.
     ///
@@ -48,10 +46,25 @@ impl ReadOnlyFileHandle {
     pub fn handle(&self) -> &InnerHandle {
         &self.inner
     }
+
+    /// Returns the size of the file in bytes.
+    pub fn size(&self) -> Result<i64, HandleOpenError> {
+        #[cfg(unix)]
+        {
+            unix_common::get_file_size(self.inner.fd())
+        }
+
+        #[cfg(target_os = "windows")]
+        {
+            windows_common::get_file_size(self.inner.handle())
+        }
+    }
 }
 
 #[cfg(test)]
 mod tests {
+    use std::{fs::OpenOptions, io::Write};
+
     use super::*;
     use tempfile::NamedTempFile;
 
@@ -92,5 +105,38 @@ mod tests {
             assert!(handle1.handle().handle() != INVALID_HANDLE_VALUE);
             assert!(handle2.handle().handle() != INVALID_HANDLE_VALUE);
         }
+    }
+
+    #[test]
+    fn size_fails_on_nonexistent_file() {
+        let handle_result = ReadOnlyFileHandle::open("nonexistent_file_test.txt");
+        assert!(handle_result.is_err());
+    }
+
+    #[test]
+    fn can_get_size_of_empty_file() {
+        let file = NamedTempFile::new().unwrap();
+        let path = file.path().to_str().unwrap();
+        let handle = ReadOnlyFileHandle::open(path).unwrap();
+
+        let size = handle.size().unwrap();
+        assert_eq!(size, 0);
+    }
+
+    #[test]
+    fn can_get_size_of_nonempty_file() {
+        let file = NamedTempFile::new().unwrap();
+        let path = file.path().to_str().unwrap();
+
+        // Write some test data
+        {
+            let mut file = OpenOptions::new().write(true).open(path).unwrap();
+            file.write_all(b"Hello, World!").unwrap();
+            file.flush().unwrap();
+        }
+
+        let handle = ReadOnlyFileHandle::open(path).unwrap();
+        let size = handle.size().unwrap();
+        assert_eq!(size, 13); // Length of "Hello, World!"
     }
 }

@@ -46,6 +46,19 @@ impl ReadWriteFileHandle {
     pub fn handle(&self) -> &InnerHandle {
         &self.inner
     }
+
+    /// Returns the size of the file in bytes.
+    pub fn size(&self) -> Result<i64, HandleOpenError> {
+        #[cfg(unix)]
+        {
+            unix_common::get_file_size(self.inner.fd())
+        }
+
+        #[cfg(target_os = "windows")]
+        {
+            windows_common::get_file_size(self.inner.handle())
+        }
+    }
 }
 
 #[cfg(test)]

@@ -39,6 +39,22 @@ pub enum HandleOpenError {
         error("Failed to open file handle. Error code: {0}")
     )]
     FailedToOpenFileHandle(i32, #[cfg(debug_assertions)] String),
+
+    /// Failed to get file size.
+    #[cfg(target_os = "windows")]
+    #[cfg_attr(
+        not(feature = "no-format"),
+        error("Failed to get file size. Error code: {0}")
+    )]
+    FailedToGetFileSize(u32),
+
+    /// Failed to get file size (Unix).
+    #[cfg(unix)]
+    #[cfg_attr(
+        not(feature = "no-format"),
+        error("Failed to get file size. Error code: {0}")
+    )]
+    FailedToGetFileSize(i32),
 }
 
 impl HandleOpenError {
@@ -163,6 +179,26 @@ impl Display for HandleOpenError {
                 let code_str = buffer.format(*code);
                 let error_msg = unsafe {
                     concat_2_no_overflow("Failed to open file handle. Error code: ", code_str)
+                };
+                f.write_str(&error_msg)
+            }
+
+            #[cfg(target_os = "windows")]
+            Self::FailedToGetFileSize(code) => {
+                let mut buffer = Buffer::new();
+                let code_str = buffer.format(*code);
+                let error_msg = unsafe {
+                    concat_2_no_overflow("Failed to get file size. Error code: ", code_str)
+                };
+                f.write_str(&error_msg)
+            }
+
+            #[cfg(unix)]
+            Self::FailedToGetFileSize(code) => {
+                let mut buffer = Buffer::new();
+                let code_str = buffer.format(*code);
+                let error_msg = unsafe {
+                    concat_2_no_overflow("Failed to get file size. Error code: ", code_str)
                 };
                 f.write_str(&error_msg)
             }

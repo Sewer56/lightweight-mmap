@@ -6,7 +6,7 @@ use ::core::marker::PhantomData;
 use handles::HandleOpenError;
 use windows_sys::Win32::Foundation::*;
 
-/// Windows platform-specific implementation for [`ReadOnlyFileHandle`].
+/// Windows platform-specific implementation for [`ReadWriteFileHandle`].
 pub struct InnerHandle {
     handle: HANDLE,
     _marker: PhantomData<()>,
@@ -15,7 +15,7 @@ pub struct InnerHandle {
 impl InnerHandle {
     /// Opens the file with appropriate access.
     pub fn open(path: &str) -> Result<Self, HandleOpenError> {
-        let handle = open_with_access(path, GENERIC_READ)?;
+        let handle = open_with_access(path, GENERIC_READ | GENERIC_WRITE)?;
         Ok(InnerHandle {
             handle,
             _marker: PhantomData,

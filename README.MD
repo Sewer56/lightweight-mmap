@@ -10,7 +10,8 @@ Simple memory mapping helpers for Rust, with minimal amount of code generated.
 
 This crate provides the facilities for opening a file and mapping it to memory
 with the minimal amount of code generated. Use this if you're a fellow freak trying to
-minimize code size.
+minimize code size. Expect to save around 5-10KB of code size against using `std` and 3rd party
+mmap crate.
 
 For a more feature rich library, see [memmap2-rs] and [mmap-rs].
 
