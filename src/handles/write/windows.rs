@@ -6,14 +6,14 @@ use util::to_wide;
 use windows_sys::Win32::Foundation::*;
 use windows_sys::Win32::Storage::FileSystem::*;
 
-/// Windows platform-specific implementation for ReadOnlyFileHandle.
+/// Windows platform-specific implementation for ReadWriteFileHandle.
 pub struct InnerHandle {
     handle: HANDLE,
     _marker: PhantomData<()>,
 }
 
 impl InnerHandle {
-    /// Opens the file with read-only access and shared permissions.
+    /// Opens the file with read-write access and shared permissions.
     ///
     /// # Arguments
     ///
@@ -21,7 +21,7 @@ impl InnerHandle {
     ///
     /// # Errors
     ///
-    /// Returns a `FileProviderError` if the file cannot be opened or the path conversion fails.
+    /// Returns a `HandleOpenError` if the file cannot be opened or the path conversion fails.
     pub fn open(path: &str) -> Result<Self, HandleOpenError> {
         let wide_path =
             to_wide(path).map_err(|code| HandleOpenError::failed_to_convert_path(code, path))?;
@@ -29,7 +29,7 @@ impl InnerHandle {
         let handle = unsafe {
             CreateFileW(
                 wide_path.as_ptr(),
-                GENERIC_READ,
+                GENERIC_READ | GENERIC_WRITE,
                 FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE,
                 null_mut(),
                 OPEN_EXISTING,

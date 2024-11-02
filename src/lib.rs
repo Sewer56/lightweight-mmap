@@ -5,3 +5,4 @@ pub mod exports;
 
 pub mod handles;
 pub mod mmap;
+pub(crate) mod util;

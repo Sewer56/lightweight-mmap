@@ -22,6 +22,12 @@ For a more feature rich library, see [memmap2-rs] and [mmap-rs].
 let handle = ReadOnlyFileHandle::open("assets/test_file.txt").unwrap();
 ```
 
+### Open a Read Write File Handle
+
+```rust
+let handle = ReadWriteFileHandle::open("assets/test_file.txt").unwrap();
+```
+
 ## Development
 
 For information on how to work with this codebase, see [README-DEV.MD](README-DEV.MD).

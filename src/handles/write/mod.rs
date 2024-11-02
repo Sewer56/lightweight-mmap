@@ -14,21 +14,19 @@ use windows::*;
 #[cfg(unix)]
 use unix::*;
 
-/// A read-only file handle that allows shared access to the file.
+/// A read-write file handle that allows shared access to the file.
 ///
-/// This struct provides a platform-independent way to open a file in read-only
+/// This struct provides a platform-independent way to open a file in read-write
 /// mode while allowing other processes to access the file simultaneously.
 ///
-/// **Note:** [`ReadOnlyFileHandle`] is [`Send`] but not [`Sync`]. It should only be
+/// **Note:** [`ReadWriteFileHandle`] is [`Send`] but not [`Sync`]. It should only be
 /// accessed from a single thread.
-pub struct ReadOnlyFileHandle {
+pub struct ReadWriteFileHandle {
     inner: InnerHandle,
 }
 
-unsafe impl Send for ReadOnlyFileHandle {}
-
-impl ReadOnlyFileHandle {
-    /// Opens a file in read-only mode with shared access.
+impl ReadWriteFileHandle {
+    /// Opens a file in read-write mode with shared access.
     ///
     /// # Arguments
     ///
@@ -39,7 +37,7 @@ impl ReadOnlyFileHandle {
     /// Returns a `HandleOpenError` if the file cannot be opened.
     pub fn open(path: &str) -> Result<Self, HandleOpenError> {
         let inner = InnerHandle::open(path)?;
-        Ok(ReadOnlyFileHandle { inner })
+        Ok(ReadWriteFileHandle { inner })
     }
 
     /// Returns a reference to the underlying file descriptor or handle.
@@ -56,10 +54,10 @@ mod tests {
     use tempfile::NamedTempFile;
 
     #[test]
-    fn can_open_read_only_file_handle() {
+    fn can_open_read_write_file_handle() {
         let file = NamedTempFile::new().unwrap();
         let path = file.path().to_str().unwrap();
-        let handle = ReadOnlyFileHandle::open(path).unwrap();
+        let handle = ReadWriteFileHandle::open(path).unwrap();
 
         #[cfg(unix)]
         {
@@ -77,8 +75,8 @@ mod tests {
     fn can_open_handle_multiple_times() {
         let file = NamedTempFile::new().unwrap();
         let path = file.path().to_str().unwrap();
-        let handle1 = ReadOnlyFileHandle::open(path).unwrap();
-        let handle2 = ReadOnlyFileHandle::open(path).unwrap();
+        let handle1 = ReadWriteFileHandle::open(path).unwrap();
+        let handle2 = ReadWriteFileHandle::open(path).unwrap();
 
         #[cfg(unix)]
         {
