@@ -42,10 +42,10 @@ jobs:
             target: i686-pc-windows-msvc
             use-pgo: true
             use-cross: false
-          - os: windows-latest
-            target: aarch64-pc-windows-msvc
-            use-pgo: false # no native runner
-            use-cross: false
+          #- os: windows-latest # Tarpaulin not run after build with cross, unfortunately.
+          #  target: aarch64-pc-windows-msvc
+          #  use-pgo: false # no native runner
+          #  use-cross: false
           - os: macos-13 # x86
             target: x86_64-apple-darwin
             use-pgo: true
