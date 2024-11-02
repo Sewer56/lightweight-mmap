@@ -114,6 +114,23 @@ impl<'a> ReadWriteMmap<'a> {
     pub fn is_empty(&self) -> bool {
         self.len() == 0
     }
+
+    /// Provides advice to the operating system about how the memory mapping will be accessed.
+    ///
+    /// # Arguments
+    ///
+    /// * `advice` - Bit flags indicating the expected access patterns for this memory region
+    ///
+    /// # Note
+    ///
+    /// This is a hint to the operating system and may be ignored. Not all advice types
+    /// are supported on all platforms. On Windows, only [`MemoryAdvice::WILL_NEED`] has an effect.
+    /// Multiple advice flags can be combined using bitwise operations.
+    pub fn advise(&self, advice: MemoryAdvice) {
+        if !self.is_empty() {
+            advise_memory(self.inner.data(), self.length, advice)
+        }
+    }
 }
 #[cfg(test)]
 mod tests {

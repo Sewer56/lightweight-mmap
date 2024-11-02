@@ -53,3 +53,20 @@ pub(crate) fn create_mmap(
 
     Ok((ptr, offset_adjustment as usize, adjusted_len))
 }
+
+#[cfg(unix)]
+pub(crate) fn advise_memory(addr: *mut libc::c_void, len: usize, advice: MemoryAdvice) {
+    // Check each flag and make the corresponding madvise call
+    // Ignore any errors as these are just hints
+    unsafe {
+        if advice.contains(MemoryAdvice::WILL_NEED) {
+            let _ = madvise(addr, len, MADV_WILLNEED);
+        }
+        if advice.contains(MemoryAdvice::SEQUENTIAL) {
+            let _ = madvise(addr, len, MADV_SEQUENTIAL);
+        }
+        if advice.contains(MemoryAdvice::RANDOM) {
+            let _ = madvise(addr, len, MADV_RANDOM);
+        }
+    }
+}

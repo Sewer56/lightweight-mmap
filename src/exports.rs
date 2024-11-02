@@ -5,7 +5,6 @@ use crate::handles::ReadWriteFileHandle;
 use core::ptr::null;
 use std::ffi::{CStr, CString};
 use std::fs::*;
-use std::os::fd::IntoRawFd;
 use std::os::raw::*;
 
 // These exports are only used to measure library size after build.

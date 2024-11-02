@@ -21,6 +21,7 @@ trim-file-lengths = []
 
 [dependencies]
 thiserror = "1.0.66"
+bitflags = "2.6.0"
 itoa = { version = "1.0.8", default-features = false, optional = true }
 nanokit = { version = "0.2.0", features = ["no-inline-concat"], optional = true }
 
@@ -36,7 +37,8 @@ features = [
     "Win32_Security",
     "Win32_Globalization",
     "Win32_System_Memory",
-    "Win32_System_SystemInformation"
+    "Win32_System_SystemInformation",
+    "Win32_System_Threading"
 ]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

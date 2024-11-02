@@ -2,6 +2,7 @@ pub mod error;
 pub mod readonly;
 pub mod readwrite;
 
+use bitflags::bitflags;
 pub use error::*;
 pub use readonly::*;
 pub use readwrite::*;
@@ -10,6 +11,11 @@ pub use readwrite::*;
 pub mod unix_common;
 #[cfg(target_os = "windows")]
 pub mod windows_common;
+
+#[cfg(unix)]
+use unix_common::*;
+#[cfg(target_os = "windows")]
+use windows_common::*;
 
 #[cfg(feature = "trim-file-lengths")]
 use crate::handles::*;
@@ -28,4 +34,18 @@ pub(crate) fn adjust_len_to_file_size(
 
     let remaining = file_size as u64 - offset;
     Ok(remaining.min(len as u64) as usize)
+}
+
+bitflags! {
+    /// Memory advice options that can be given to the operating system.
+    /// These are hints and may be combined using bitwise operations.
+    #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+    pub struct MemoryAdvice: u32 {
+        /// Indicates that the application expects to access the memory soon
+        const WILL_NEED = 0b001;
+        /// Indicates that memory access will be sequential from lower to higher addresses
+        const SEQUENTIAL = 0b010;
+        /// Indicates that memory access will be random (non-sequential)
+        const RANDOM = 0b100;
+    }
 }

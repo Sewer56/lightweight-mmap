@@ -144,6 +144,35 @@ unsafe {
 Note: Memory mappings cannot outlive their file handles (compiler should ensure this), and the mapped
 memory should be accessed carefully to avoid data races.
 
+#### Memory Advice
+
+Provide hints to the operating system about how memory mapped regions will be accessed:
+
+```rust
+use lightweight_mmap::{ReadOnlyFileHandle, ReadOnlyMmap, MemoryAdvice};
+
+// Open and map the file
+let handle = ReadOnlyFileHandle::open("data.bin").unwrap();
+let mapping = ReadOnlyMmap::new(&handle, 0, 1024).unwrap();
+
+// Indicate we'll access this memory soon
+mapping.advise(MemoryAdvice::WILL_NEED);
+
+// Indicate sequential access pattern
+mapping.advise(MemoryAdvice::SEQUENTIAL);
+
+// Combine multiple hints
+mapping.advise(MemoryAdvice::WILL_NEED | MemoryAdvice::SEQUENTIAL);
+```
+
+Available advice flags:
+- `WILL_NEED`: Indicates that the application expects to access the memory soon
+- `SEQUENTIAL`: Indicates that memory access will be sequential from lower to higher addresses
+- `RANDOM`: Indicates that memory access will be random (non-sequential)
+
+Note: These are hints and may be ignored by the operating system.
+Not all hints are supported on all platforms. On Windows, only `WILL_NEED` has an effect.
+
 ## Development
 
 For information on how to work with this codebase, see [README-DEV.MD](README-DEV.MD).
