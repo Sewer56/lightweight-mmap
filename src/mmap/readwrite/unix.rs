@@ -1,5 +1,5 @@
 use super::*;
-use core::{marker::PhantomData, ptr};
+use core::marker::PhantomData;
 use libc::*;
 use unix_common::create_mmap;
 
@@ -36,10 +36,10 @@ impl<'a> ReadWriteMmapInner<'a> {
     }
 }
 
-impl<'a> Drop for ReadWriteMmapInner<'a> {
+impl Drop for ReadWriteMmapInner<'_> {
     fn drop(&mut self) {
         unsafe {
-            if self.ptr != ptr::null_mut() {
+            if !self.ptr.is_null() {
                 munmap(self.ptr, self.length);
             }
         }
