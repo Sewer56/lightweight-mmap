@@ -13,7 +13,7 @@ with the minimal amount of code generated.
 
 ## Motivation
 
-This crate is for absolute freaks like me who wish to save 5-10KB of code size in their binaries;
+This crate is for absolute freaks like me who wish to save 3-8KB of code size in their binaries;
 with a thin limited wrapper providing complete zero overhead abstraction. Since `std` and 3rd party
 mmap crates will compile and run a small amount of code which may not be needed for your use case.
 

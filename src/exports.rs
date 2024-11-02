@@ -1,8 +1,11 @@
 #![allow(clippy::missing_safety_doc)]
-
+#![allow(unused_imports)]
 use crate::handles::ReadOnlyFileHandle;
 use crate::handles::ReadWriteFileHandle;
+use core::ptr::null;
 use std::ffi::{CStr, CString};
+use std::fs::*;
+use std::os::fd::IntoRawFd;
 use std::os::raw::*;
 
 // These exports are only used to measure library size after build.
@@ -46,6 +49,23 @@ pub unsafe extern "C" fn open_read_handle(path: *const c_char) -> HandleResult {
         }
     };
 
+    /*
+    match File::open(path_str) {
+        Ok(file) => HandleResult {
+            success: true,
+            data: HandleResultData {
+                handle: Box::into_raw(Box::new(todo!())),
+            },
+        },
+        Err(e) => HandleResult {
+            success: false,
+            data: HandleResultData {
+                error: e.to_string().as_ptr() as *const i8, // yes, this is a bug. We're only doing size testing here.
+            },
+        },
+    }
+    */
+
     // Try to open the handle
     match ReadOnlyFileHandle::open(path_str) {
         Ok(handle) => HandleResult {
@@ -87,6 +107,23 @@ pub unsafe extern "C" fn open_write_handle(path: *const c_char) -> HandleResult 
             }
         }
     };
+
+    /*
+    match OpenOptions::new().read(true).write(true).open(path_str) {
+        Ok(file) => HandleResult {
+            success: true,
+            data: HandleResultData {
+                handle: Box::into_raw(Box::new(todo!())),
+            },
+        },
+        Err(e) => HandleResult {
+            success: false,
+            data: HandleResultData {
+                error: e.to_string().as_ptr() as *const i8, // yes, this is a bug. We're only doing size testing here.
+            },
+        },
+    }
+    */
 
     // Try to open the handle
     match ReadWriteFileHandle::open(path_str) {
