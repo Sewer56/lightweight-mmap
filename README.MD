@@ -38,6 +38,7 @@ in a tiny package.
 ## Crate Features
 
 - `std` (default): Enables standard library support
+- `mmap` (default): Enables memory map operations, adding `mmap` cache info to handles on some platforms. Without this, library can only be used for opening raw file handles.
 - `no-format`: Reduces binary size by skipping `core::fmt` formatting machinery as much as possible. Uses [itoa] and [nanokit] crates for minimal formatting.
 - `trim-file-lengths`: Ensures memory maps cannot exceed file size by trimming mapping length. Adds a small overhead to map open time.
 

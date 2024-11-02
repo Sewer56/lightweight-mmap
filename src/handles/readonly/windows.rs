@@ -6,9 +6,14 @@ use ::core::marker::PhantomData;
 use handles::HandleOpenError;
 use windows_sys::Win32::{Foundation::*, Storage::FileSystem::*};
 
+#[cfg(feature = "mmap")]
+use core::cell::UnsafeCell;
+
 /// Windows platform-specific implementation for [`ReadOnlyFileHandle`].
 pub struct InnerHandle {
     handle: HANDLE,
+    #[cfg(feature = "mmap")]
+    pub(crate) mapping: UnsafeCell<HANDLE>,
     _marker: PhantomData<()>,
 }
 
@@ -18,6 +23,8 @@ impl InnerHandle {
         let handle = open_with_access(path, GENERIC_READ, OPEN_EXISTING)?;
         Ok(InnerHandle {
             handle,
+            #[cfg(feature = "mmap")]
+            mapping: UnsafeCell::new(INVALID_HANDLE_VALUE),
             _marker: PhantomData,
         })
     }
@@ -31,6 +38,14 @@ impl InnerHandle {
 impl Drop for InnerHandle {
     fn drop(&mut self) {
         unsafe {
+            #[cfg(feature = "mmap")]
+            {
+                let mapping = *self.mapping.get_mut();
+                if mapping != INVALID_HANDLE_VALUE {
+                    CloseHandle(mapping);
+                }
+            }
+
             if self.handle != INVALID_HANDLE_VALUE {
                 CloseHandle(self.handle);
             }

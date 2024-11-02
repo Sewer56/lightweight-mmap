@@ -1,6 +1,5 @@
 use super::*;
 use core::{ffi::c_void, marker::PhantomData};
-use windows_common::create_mmap;
 use windows_sys::Win32::System::Memory::*;
 
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
@@ -15,8 +14,10 @@ impl<'a> ReadOnlyMmapInner<'a> {
         offset: u64,
         len: usize,
     ) -> Result<(Self, usize, usize), MmapError> {
-        let (ptr, offset_adjustment, adjusted_len) = create_mmap(
-            handle.handle().handle(),
+        let inner = handle.handle();
+        let (ptr, offset_adjustment, adjusted_len) = create_view(
+            inner.handle(),
+            unsafe { &mut *inner.mapping.get() },
             offset,
             len,
             PAGE_READONLY,

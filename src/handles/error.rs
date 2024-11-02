@@ -38,12 +38,24 @@ pub enum HandleOpenError {
     )]
     FailedToGetFileSize(#[cfg(target_os = "windows")] u32, #[cfg(unix)] i32),
 
-    // Add to handles/error.rs in the HandleOpenError enum
+    /// Failed to set file size.
     #[cfg_attr(
         not(feature = "no-format"),
         error("Failed to set file size. Error code: {0}")
     )]
     FailedToSetFileSize(#[cfg(target_os = "windows")] u32, #[cfg(unix)] i32),
+
+    /// Failed to create file mapping.
+    #[cfg(all(target_os = "windows", feature = "mmap"))]
+    #[cfg_attr(
+        all(not(feature = "no-format"), debug_assertions),
+        error("Failed to create file mapping. Error code: {0}, Path: {1}")
+    )]
+    #[cfg_attr(
+        all(not(feature = "no-format"), not(debug_assertions)),
+        error("Failed to create file mapping. Error code: {0}")
+    )]
+    FailedToCreateFileMapping(u32, #[cfg(debug_assertions)] String),
 }
 
 impl HandleOpenError {
@@ -72,6 +84,20 @@ impl HandleOpenError {
         #[cfg(not(debug_assertions))]
         {
             Self::FailedToOpenFileHandle(err_code)
+        }
+    }
+
+    #[cfg(all(target_os = "windows", feature = "mmap"))]
+    #[allow(unused_variables)]
+    pub fn failed_to_create_file_mapping(err_code: u32, path: &str) -> Self {
+        #[cfg(debug_assertions)]
+        {
+            Self::FailedToCreateFileMapping(err_code, path.to_string())
+        }
+
+        #[cfg(not(debug_assertions))]
+        {
+            Self::FailedToCreateFileMapping(err_code)
         }
     }
 
@@ -154,6 +180,30 @@ impl Display for HandleOpenError {
                 let code_str = buffer.format(*code);
                 let error_msg = unsafe {
                     concat_2_no_overflow("Failed to open file handle. Error code: ", code_str)
+                };
+                f.write_str(&error_msg)
+            }
+
+            #[cfg(all(target_os = "windows", feature = "mmap", debug_assertions))]
+            Self::FailedToCreateFileMapping(code, path) => {
+                let mut buffer = Buffer::new();
+                let code_str = buffer.format(*code);
+                let error_msg = unsafe {
+                    concat_3_no_overflow(
+                        "Failed to create file mapping. Error code: ",
+                        code_str,
+                        concat_2_no_overflow(", Path: ", path),
+                    )
+                };
+                f.write_str(&error_msg)
+            }
+
+            #[cfg(all(target_os = "windows", feature = "mmap", not(debug_assertions)))]
+            Self::FailedToCreateFileMapping(code) => {
+                let mut buffer = Buffer::new();
+                let code_str = buffer.format(*code);
+                let error_msg = unsafe {
+                    concat_2_no_overflow("Failed to create file mapping. Error code: ", code_str)
                 };
                 f.write_str(&error_msg)
             }

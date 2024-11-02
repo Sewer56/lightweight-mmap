@@ -19,19 +19,6 @@ use windows::*;
 /// mapping. The mapping can be created with a specific offset and length.
 ///
 /// The mapping cannot outlive the file handle it was created from.
-///
-/// # Examples
-///
-/// ```no_run
-/// use your_crate::{ReadOnlyFileHandle, ReadOnlyMmap};
-///
-/// let handle = ReadOnlyFileHandle::open("data.bin").unwrap();
-/// // Map 1024 bytes starting at offset 4096
-/// let mapping = ReadOnlyMmap::new(&handle, 4096, 1024).unwrap();
-///
-/// // Access the mapped memory
-/// let data = unsafe { std::slice::from_raw_parts(mapping.data(), mapping.len()) };
-/// ```
 #[derive(Clone, Debug, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ReadOnlyMmap<'a> {
     inner: ReadOnlyMmapInner<'a>,

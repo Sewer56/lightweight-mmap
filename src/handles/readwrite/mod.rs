@@ -242,6 +242,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(feature = "mmap")]
     fn can_memory_map_preallocated_file() {
         use crate::mmap::ReadWriteMmap;
 

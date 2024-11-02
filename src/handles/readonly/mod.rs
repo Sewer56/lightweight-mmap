@@ -47,6 +47,13 @@ impl ReadOnlyFileHandle {
         &self.inner
     }
 
+    /// Returns a reference to the underlying file descriptor or handle as mutable.
+    ///
+    /// This can be used for further operations if needed.
+    pub fn handle_mut(&mut self) -> &mut InnerHandle {
+        &mut self.inner
+    }
+
     /// Returns the size of the file in bytes.
     pub fn size(&self) -> Result<i64, HandleOpenError> {
         #[cfg(unix)]

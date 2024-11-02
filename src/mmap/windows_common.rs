@@ -6,8 +6,9 @@ use core::{ffi::c_void, ptr::null_mut};
 use windows_sys::Win32::System::Threading::GetCurrentProcess;
 use windows_sys::Win32::{Foundation::*, System::Memory::*};
 
-pub(crate) fn create_mmap(
+pub(crate) fn create_view(
     handle: HANDLE,
+    mapping: &mut HANDLE,
     offset: u64,
     len: usize,
     protection: u32,
@@ -18,6 +19,18 @@ pub(crate) fn create_mmap(
         return Ok((ptr::null_mut(), 0, 0));
     }
 
+    // Lazily create the mapping if it doesn't exist
+    if *mapping == INVALID_HANDLE_VALUE {
+        *mapping = unsafe {
+            let map = CreateFileMappingW(handle, null_mut(), protection, 0, 0, null());
+
+            if map.is_null() {
+                return Err(MmapError::failed_to_map_memory(GetLastError()));
+            }
+            map
+        };
+    }
+
     let page_size = get_allocation_granularity();
     let aligned_offset = offset & !(page_size as u64 - 1);
     let offset_adjustment = offset - aligned_offset;
@@ -25,40 +38,31 @@ pub(crate) fn create_mmap(
     // Adjust length to account for page alignment
     let adjusted_len = len + (offset_adjustment as usize);
 
-    unsafe {
-        let mapping = CreateFileMappingW(handle, null_mut(), protection, 0, 0, null());
-
-        if mapping.is_null() {
-            return Err(MmapError::failed_to_map_memory(GetLastError()));
-        }
-
-        let ptr = MapViewOfFile(
-            mapping,
+    let ptr = unsafe {
+        MapViewOfFile(
+            *mapping,
             access,
             (aligned_offset >> 32) as u32,
             aligned_offset as u32,
             adjusted_len,
         )
-        .Value;
+        .Value
+    };
 
-        CloseHandle(mapping);
-
-        if ptr.is_null() {
-            return Err(MmapError::failed_to_map_memory(GetLastError()));
-        }
-
-        Ok((ptr, offset_adjustment as usize, adjusted_len))
+    if ptr.is_null() {
+        return Err(MmapError::failed_to_map_memory(unsafe { GetLastError() }));
     }
+
+    Ok((ptr, offset_adjustment as usize, adjusted_len))
 }
 
-#[cfg(target_os = "windows")]
 pub(crate) fn advise_memory(addr: *mut core::ffi::c_void, len: usize, advice: MemoryAdvice) {
     // Windows only supports prefetching (similar to MADV_WILLNEED)
     // Other advice types are ignored
     if advice.contains(MemoryAdvice::WILL_NEED) {
         let entry = WIN32_MEMORY_RANGE_ENTRY {
             VirtualAddress: addr,
-            NumberOfBytes: len as usize,
+            NumberOfBytes: len,
         };
 
         unsafe {
