@@ -25,6 +25,8 @@ pub struct ReadOnlyFileHandle {
     inner: InnerHandle,
 }
 
+unsafe impl Send for ReadOnlyFileHandle {}
+
 impl ReadOnlyFileHandle {
     /// Opens a file in read-only mode with shared access.
     ///
@@ -74,6 +76,12 @@ mod tests {
 
     use super::*;
     use tempfile::NamedTempFile;
+
+    #[test]
+    fn readonly_handle_is_send() {
+        fn assert_send<T: Send>() {}
+        assert_send::<ReadOnlyFileHandle>();
+    }
 
     #[test]
     fn can_open_read_only_file_handle() {

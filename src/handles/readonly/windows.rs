@@ -17,6 +17,8 @@ pub struct InnerHandle {
     _marker: PhantomData<()>,
 }
 
+unsafe impl Send for InnerHandle {}
+
 impl InnerHandle {
     /// Opens the file with appropriate access.
     pub fn open(path: &str) -> Result<Self, HandleOpenError> {

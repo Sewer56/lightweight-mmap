@@ -26,6 +26,8 @@ pub struct ReadWriteMmap<'a> {
     length: usize,
 }
 
+unsafe impl Send for ReadWriteMmap<'_> {}
+
 impl<'a> ReadWriteMmap<'a> {
     /// Creates a new read-write memory mapping for the specified file handle.
     ///
@@ -128,6 +130,12 @@ mod tests {
         io::{Read, Write},
     };
     use tempfile::NamedTempFile;
+
+    #[test]
+    fn readwrite_mmap_is_send() {
+        fn assert_send<T: Send>() {}
+        assert_send::<ReadWriteMmap<'_>>();
+    }
 
     #[test]
     fn can_create_empty_mapping() {

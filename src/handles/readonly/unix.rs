@@ -9,6 +9,8 @@ pub struct InnerHandle {
     _marker: PhantomData<()>,
 }
 
+unsafe impl Send for InnerHandle {}
+
 impl InnerHandle {
     /// Opens the file with read-only access.
     ///

@@ -9,6 +9,8 @@ pub struct InnerHandle {
     _marker: PhantomData<()>,
 }
 
+unsafe impl Send for InnerHandle {}
+
 impl InnerHandle {
     pub fn open(path: &str) -> Result<Self, HandleOpenError> {
         let fd = open_with_flags(path, O_RDWR)?;

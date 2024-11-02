@@ -25,6 +25,8 @@ pub struct ReadWriteFileHandle {
     inner: InnerHandle,
 }
 
+unsafe impl Send for ReadWriteFileHandle {}
+
 impl ReadWriteFileHandle {
     /// Opens a file in read-write mode with shared access.
     ///
@@ -87,6 +89,12 @@ mod tests {
     use super::*;
     use std::{fs::*, io::*};
     use tempfile::{NamedTempFile, TempDir};
+
+    #[test]
+    fn readwrite_handle_is_send() {
+        fn assert_send<T: Send>() {}
+        assert_send::<ReadWriteFileHandle>();
+    }
 
     #[test]
     fn can_open_read_write_file_handle() {

@@ -26,6 +26,8 @@ pub struct ReadOnlyMmap<'a> {
     length: usize,
 }
 
+unsafe impl Send for ReadOnlyMmap<'_> {}
+
 impl<'a> ReadOnlyMmap<'a> {
     /// Creates a new read-only memory mapping for the specified file handle.
     ///
@@ -120,6 +122,12 @@ mod tests {
     use super::*;
     use std::io::Write;
     use tempfile::NamedTempFile;
+
+    #[test]
+    fn readonly_mmap_is_send() {
+        fn assert_send<T: Send>() {}
+        assert_send::<ReadOnlyMmap<'_>>();
+    }
 
     #[test]
     fn can_create_empty_mapping() {
