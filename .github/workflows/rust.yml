@@ -54,6 +54,14 @@ jobs:
             target: aarch64-apple-darwin
             use-pgo: true
             use-cross: false
+          - os: ubuntu-latest
+            target: x86_64-linux-android
+            use-pgo: false
+            use-cross: true
+          - os: ubuntu-latest
+            target: i686-linux-android
+            use-pgo: false
+            use-cross: true
 
     runs-on: ${{ matrix.os }}
 
