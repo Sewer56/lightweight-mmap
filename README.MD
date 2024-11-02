@@ -9,25 +9,133 @@
 Simple memory mapping helpers for Rust, with minimal amount of code generated.
 
 This crate provides the facilities for opening a file and mapping it to memory
-with the minimal amount of code generated. Use this if you're a fellow freak trying to
-minimize code size. Expect to save around 5-10KB of code size against using `std` and 3rd party
-mmap crate.
+with the minimal amount of code generated. 
 
-For a more feature rich library, see [memmap2-rs] and [mmap-rs].
+## Motivation
+
+This crate is for absolute freaks like me who wish to save 5-10KB of code size in their binaries;
+with a complete zero overhead abstraction. Since `std` and 3rd party mmap crates will compile and
+run a small amount of code which may not be needed for your use case.
+
+If you have more advanced needs than present in this crate, consider using `std` for opening
+file handles and a library like [memmap2-rs] and [mmap-rs] for mapping.
+
+The API surface here is driven by [sewer56-archives-nx] and any other projects of mine which need mmap
+in a tiny package.
+
+## Characteristics
+
+- Minimal code size overhead
+- Platform-native file handles
+- Read-only and read-write memory mappings
+- Support for offset and length in mappings
+- Supports zero sized mappings.
+- Supports mappings to unaligned file offsets.
+- Cross-platform compatibility
+- Thread-safe (`Send` but not `Sync`)
+
+## Crate Features
+
+- `std` (default): Enables standard library support
+- `no-format`: Reduces binary size by skipping `core::fmt` formatting machinery as much as possible. Uses [itoa] and [nanokit] crates for minimal formatting.
+- `trim-file-lengths`: Ensures memory maps cannot exceed file size by trimming mapping length. Adds a small overhead to map open time.
+
+To use without standard library:
+```toml
+[dependencies]
+lightweight-mmap = { version = "x.y.z", default-features = false }
+```
+
+To minimize binary size:
+```toml
+[dependencies]
+lightweight-mmap = { version = "x.y.z", features = ["no-format"] }
+```
+
+Whether you should use `no-format` should depend on whether you already use `core::fmt` elsewhere in your
+library/binary. Check with [cargo bloat]. If you don't, it's best to use `no-format` to reduce binary size.
+
+## Platform Support
+
+The crate is tested and supported on:
+
+### Windows
+
+- x86_64-pc-windows-msvc
+- i686-pc-windows-msvc
+- aarch64-pc-windows-msvc
+
+### Linux
+
+- x86_64-unknown-linux-gnu
+- i686-unknown-linux-gnu
+- aarch64-unknown-linux-gnu
+- armv7-unknown-linux-gnueabihf
+
+### macOS
+
+- x86_64-apple-darwin
+- aarch64-apple-darwin
+
+### Android
+
+- x86_64-linux-android
+- i686-linux-android
+
+--------
+
+For other platforms, level of support is unknown.
 
 ## Examples
 
-### Open a Read Only File Handle
+### File Handles
 
+Open a read-only file handle:
 ```rust
 let handle = ReadOnlyFileHandle::open("assets/test_file.txt").unwrap();
 ```
 
-### Open a Read Write File Handle
-
+Open a read-write file handle:
 ```rust
 let handle = ReadWriteFileHandle::open("assets/test_file.txt").unwrap();
 ```
+
+### Memory Mapping
+
+Create a read-only memory mapping:
+```rust
+use lightweight_mmap::{ReadOnlyFileHandle, ReadOnlyMmap};
+
+// Open the file
+let handle = ReadOnlyFileHandle::open("data.bin").unwrap();
+
+// Map 1024 bytes starting at offset 4096
+let mapping = ReadOnlyMmap::new(&handle, 4096, 1024).unwrap();
+
+// Access the mapped memory
+let data = mapping.as_slice();
+```
+
+Create a read-write memory mapping:
+
+```rust
+use lightweight_mmap::{ReadWriteFileHandle, ReadWriteMmap};
+
+// Open the file
+let handle = ReadWriteFileHandle::open("data.bin").unwrap();
+
+// Map 1024 bytes starting at offset 4096
+let mapping = ReadWriteMmap::new(&handle, 4096, 1024).unwrap();
+
+// Access and modify the mapped memory
+unsafe {
+    let data = core::slice::from_raw_parts_mut(mapping.data(), mapping.len());
+    data[0] = 42;
+}
+```
+
+Note: Memory mappings cannot outlive their file handles (compiler should ensure this), and the mapped
+memory should be accessed carefully to avoid data races.
 
 ## Development
 
@@ -45,3 +153,7 @@ Licensed under [MIT](./LICENSE).
 [memmap2-rs]: https://github.com/RazrFalcon/memmap2-rs
 [mmap-rs]: https://github.com/StephanvanSchaik/mmap-rs
 [reloaded-license]: https://reloaded-project.github.io/Reloaded.MkDocsMaterial.Themes.R2/Pages/license/
+[sewer56-archives-nx]: https://github.com/Sewer56/sewer56-archives-nx
+[itoa]: https://crates.io/crates/itoa
+[nanokit]: https://crates.io/crates/nanokit
+[cargo-bloat]: https://github.com/RazrFalcon/cargo-bloat
