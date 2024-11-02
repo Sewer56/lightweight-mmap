@@ -54,12 +54,9 @@ impl ReadOnlyFileHandle {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::path::Path;
 
     #[test]
     fn can_open_read_only_file_handle() {
-        let path = Path::new("assets/test_file.txt");
-        let path_str = path.to_str().unwrap();
         let handle = ReadOnlyFileHandle::open("assets/test_file.txt").unwrap();
 
         #[cfg(unix)]
@@ -76,11 +73,8 @@ mod tests {
 
     #[test]
     fn can_open_handle_multiple_times() {
-        let path = Path::new("assets/test_file.txt");
-        let path_str = path.to_str().unwrap();
-
-        let handle1 = ReadOnlyFileHandle::open(path_str).unwrap();
-        let handle2 = ReadOnlyFileHandle::open(path_str).unwrap();
+        let handle1 = ReadOnlyFileHandle::open("assets/test_file.txt").unwrap();
+        let handle2 = ReadOnlyFileHandle::open("assets/test_file.txt").unwrap();
 
         #[cfg(unix)]
         {

@@ -57,5 +57,5 @@ impl Drop for InnerHandle {
 ///
 /// The current errno value.
 fn errno() -> i32 {
-    unsafe { *libc::__errno_location() }
+    errno::errno().0
 }

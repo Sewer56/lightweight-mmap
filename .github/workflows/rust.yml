@@ -82,7 +82,7 @@ jobs:
           if echo "$SEARCH_RESULT" | grep -q "^lightweight-mmap "; then
             rustup target add ${{ matrix.target }}
             cargo install cargo-semver-checks
-            cargo semver-checks --target ${{ matrix.target }} --features c-exports
+            cargo semver-checks --target ${{ matrix.target }}
           else
               echo "No previous version found on crates.io. Skipping semver checks."
           fi
