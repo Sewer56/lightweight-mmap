@@ -40,6 +40,7 @@ pub(crate) fn open_with_access(path: &str, access: u32) -> Result<*mut c_void, H
 }
 
 #[cfg(target_os = "windows")]
+#[allow(clippy::not_unsafe_ptr_arg_deref)]
 pub fn get_file_size(handle: HANDLE) -> Result<i64, HandleOpenError> {
     let mut size = 0i64;
     let size_ptr = (&mut size) as *mut i64;

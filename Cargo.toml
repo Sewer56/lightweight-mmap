@@ -15,6 +15,9 @@ std = []
 c-exports = []
 # Skips core::fmt formatting machinery where possible.
 no-format = [ "dep:itoa", "dep:nanokit" ]
+# Trims the lengths of memory maps up to the size of the file, ensuriung mapping
+# cannot go beyond. At slight cost of map open time.
+trim-file-lengths = []
 
 [dependencies]
 thiserror = "1.0.66"
@@ -31,7 +34,9 @@ features = [
     "Win32_Foundation",
     "Win32_Storage_FileSystem",
     "Win32_Security",
-    "Win32_Globalization"
+    "Win32_Globalization",
+    "Win32_System_Memory",
+    "Win32_System_SystemInformation"
 ]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

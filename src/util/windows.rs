@@ -1,7 +1,9 @@
+use core::mem::zeroed;
 use core::ptr::null_mut;
+use windows_sys::Win32::System::SystemInformation::*;
 use windows_sys::Win32::{Foundation::*, Globalization::*};
 
-/// Converts a `&str` to a wide string (`Box<[u16]>`) for Windows API using MultiByteToWideChar.
+/// Converts a `&str` to a wide string (`Box<[u16]>`) for Windows API using [`MultiByteToWideChar`].
 ///
 /// # Arguments
 ///
@@ -48,4 +50,15 @@ pub fn to_wide(s: &str) -> Result<Box<[u16]>, u32> {
         *buffer.get_unchecked_mut(len as usize) = 0;
         Ok(buffer)
     }
+}
+
+/// Query the system page size on Windows systems.
+///
+/// # Safety
+///
+/// This function is unsafe because it calls the raw [`GetSystemInfo`] syscall.
+pub unsafe fn query_allocation_granularity() -> u32 {
+    let mut system_info: SYSTEM_INFO = zeroed();
+    GetSystemInfo(&mut system_info);
+    system_info.dwAllocationGranularity
 }
