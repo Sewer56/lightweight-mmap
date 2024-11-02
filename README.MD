@@ -14,8 +14,8 @@ with the minimal amount of code generated.
 ## Motivation
 
 This crate is for absolute freaks like me who wish to save 5-10KB of code size in their binaries;
-with a complete zero overhead abstraction. Since `std` and 3rd party mmap crates will compile and
-run a small amount of code which may not be needed for your use case.
+with a thin limited wrapper providing complete zero overhead abstraction. Since `std` and 3rd party
+mmap crates will compile and run a small amount of code which may not be needed for your use case.
 
 If you have more advanced needs than present in this crate, consider using `std` for opening
 file handles and a library like [memmap2-rs] and [mmap-rs] for mapping.
@@ -33,6 +33,7 @@ in a tiny package.
 - Supports mappings to unaligned file offsets.
 - Cross-platform compatibility
 - Thread-safe (`Send` but not `Sync`)
+- All opened handles can be accessed by multiple processes (Linux behaviour)
 
 ## Crate Features
 
@@ -90,14 +91,20 @@ For other platforms, level of support is unknown.
 
 ### File Handles
 
-Open a read-only file handle:
+Open a read-only file handle to an existing file:
 ```rust
 let handle = ReadOnlyFileHandle::open("assets/test_file.txt").unwrap();
 ```
 
-Open a read-write file handle:
+Open a read-write file handle to an existing file:
 ```rust
 let handle = ReadWriteFileHandle::open("assets/test_file.txt").unwrap();
+```
+
+Create a new file with pre-allocated size:
+
+```rust
+let handle = ReadWriteFileHandle::create_preallocated("assets/test_file.txt", 1024).unwrap();
 ```
 
 ### Memory Mapping

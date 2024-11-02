@@ -1,7 +1,7 @@
 use super::*;
 use core::marker::PhantomData;
 use libc::*;
-use unix_common::open_with_flags;
+use unix_common::*;
 
 /// Unix platform-specific implementation for [`ReadWriteFileHandle`].
 pub struct InnerHandle {
@@ -10,15 +10,6 @@ pub struct InnerHandle {
 }
 
 impl InnerHandle {
-    /// Opens the file with read-write access.
-    ///
-    /// # Arguments
-    ///
-    /// * `path` - The path to the file to open.
-    ///
-    /// # Errors
-    ///
-    /// Returns a [`HandleOpenError`] if the file cannot be opened.
     pub fn open(path: &str) -> Result<Self, HandleOpenError> {
         let fd = open_with_flags(path, O_RDWR)?;
         Ok(InnerHandle {
@@ -30,6 +21,19 @@ impl InnerHandle {
     /// Returns the raw file descriptor.
     pub fn fd(&self) -> c_int {
         self.fd
+    }
+
+    pub fn create_preallocated(path: &str, size: i64) -> Result<Self, HandleOpenError> {
+        let fd = open_with_flags(path, O_RDWR | O_CREAT)?;
+        if let Err(e) = set_file_size(fd, size) {
+            unsafe { close(fd) };
+            return Err(e);
+        }
+
+        Ok(InnerHandle {
+            fd,
+            _marker: PhantomData,
+        })
     }
 }
 
