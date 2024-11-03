@@ -1,6 +1,6 @@
 [package]
 name = "lightweight-mmap"
-version = "0.2.1"
+version = "0.3.0"
 edition = "2021"
 description = "Simple memory mapping helpers for Rust, with minimal amount of code generated."
 repository = "https://github.com/Sewer56/lightweight-mmap"
