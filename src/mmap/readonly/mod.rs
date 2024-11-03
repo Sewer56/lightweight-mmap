@@ -57,15 +57,9 @@ impl<'a> ReadOnlyMmap<'a> {
     }
 
     /// Returns a slice of the mapped memory.
-    ///
-    /// # Safety
-    ///
-    /// This method is unsafe because it creates a slice from raw pointers.
-    /// The caller must ensure that:
-    /// - The memory is not modified by other parts of the program while this slice exists
-    /// - The lifetime of the slice does not exceed the lifetime of the mapping
+    /// The lifetime of the slice is the same as the mapping.
     #[inline]
-    pub fn as_slice(&self) -> &[u8] {
+    pub fn as_slice(&self) -> &'a [u8] {
         unsafe { from_raw_parts(self.data(), self.len()) }
     }
 
@@ -77,10 +71,11 @@ impl<'a> ReadOnlyMmap<'a> {
     /// # Safety
     ///
     /// The caller must ensure that the memory is accessed within the bounds of
-    /// the mapping and that no other threads are modifying the file while it
-    /// is mapped.
+    /// the mapping. The caller must also ensure the pointer does not outlast the
+    /// lifetime of the mapping. It is recommended you use [`Self::as_slice`] instead
+    /// for compiler enforced safety.
     #[inline]
-    pub fn data(&self) -> *const u8 {
+    pub unsafe fn data(&self) -> *const u8 {
         unsafe { (self.inner.data() as *const u8).add(self.offset_adjustment) }
     }
 
@@ -145,7 +140,7 @@ mod tests {
         let handle = ReadOnlyFileHandle::open(file.path().to_str().unwrap()).unwrap();
 
         let mapping = ReadOnlyMmap::new(&handle, 0, 0).unwrap();
-        assert!(mapping.data().is_null());
+        assert!(unsafe { mapping.data().is_null() });
     }
 
     #[test]

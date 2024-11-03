@@ -61,15 +61,9 @@ impl<'a> ReadWriteMmap<'a> {
     }
 
     /// Returns a slice of the mapped memory.
-    ///
-    /// # Safety
-    ///
-    /// This method is unsafe because it creates a slice from raw pointers.
-    /// The caller must ensure that:
-    /// - The memory is not modified by other parts of the program while this slice exists
-    /// - The lifetime of the slice does not exceed the lifetime of the mapping
+    /// The lifetime of the slice is the same as the mapping.
     #[inline]
-    pub fn as_slice(&self) -> &[u8] {
+    pub fn as_slice(&self) -> &'a [u8] {
         unsafe { from_raw_parts(self.data(), self.len()) }
     }
 
@@ -80,10 +74,10 @@ impl<'a> ReadWriteMmap<'a> {
     ///
     /// # Safety
     ///
-    /// The caller must ensure that:
-    /// - Memory is accessed within the bounds of the mapping
-    /// - No other threads are reading from the file while writing to the mapping
-    /// - All writes are properly synchronized between threads
+    /// The caller must ensure that the memory is accessed within the bounds of
+    /// the mapping. The caller must also ensure the pointer does not outlast the
+    /// lifetime of the mapping. It is recommended you use [`Self::as_slice`] instead
+    /// for compiler enforced safety.
     #[inline]
     pub fn data(&self) -> *mut u8 {
         unsafe { (self.inner.data() as *mut u8).add(self.offset_adjustment) }
