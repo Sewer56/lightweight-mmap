@@ -67,6 +67,13 @@ impl<'a> ReadWriteMmap<'a> {
         unsafe { from_raw_parts(self.data(), self.len()) }
     }
 
+    /// Returns a mutable slice of the mapped memory.
+    /// The lifetime of the slice is the same as the mapping.
+    #[inline]
+    pub fn as_mut_slice(&mut self) -> &'a mut [u8] {
+        unsafe { core::slice::from_raw_parts_mut(self.data(), self.len()) }
+    }
+
     /// Returns a raw pointer to the mapped memory.
     ///
     /// The returned pointer is adjusted for the requested offset, accounting for
@@ -76,8 +83,8 @@ impl<'a> ReadWriteMmap<'a> {
     ///
     /// The caller must ensure that the memory is accessed within the bounds of
     /// the mapping. The caller must also ensure the pointer does not outlast the
-    /// lifetime of the mapping. It is recommended you use [`Self::as_slice`] instead
-    /// for compiler enforced safety.
+    /// lifetime of the mapping. It is recommended you use [`Self::as_slice`] or
+    /// [`Self::as_mut_slice`] instead for compiler enforced safety.
     #[inline]
     pub fn data(&self) -> *mut u8 {
         unsafe { (self.inner.data() as *mut u8).add(self.offset_adjustment) }
@@ -115,10 +122,10 @@ impl<'a> ReadWriteMmap<'a> {
         }
     }
 }
+
 #[cfg(test)]
 mod tests {
     use super::*;
-    use core::slice::from_raw_parts_mut;
     use std::{
         fs::File,
         io::{Read, Write},
@@ -157,13 +164,10 @@ mod tests {
         file.flush().unwrap();
 
         let handle = ReadWriteFileHandle::open(file.path().to_str().unwrap()).unwrap();
-        let mapping = ReadWriteMmap::new(&handle, 0, 13).unwrap();
+        let mut mapping = ReadWriteMmap::new(&handle, 0, 13).unwrap();
 
         assert_eq!(mapping.len(), 13);
-        unsafe {
-            let data = from_raw_parts_mut(mapping.data(), mapping.len());
-            data[0..5].copy_from_slice(b"HELLO");
-        }
+        mapping.as_mut_slice()[0..5].copy_from_slice(b"HELLO");
 
         // Read back the modified content
         let mut content = String::new();
@@ -181,13 +185,10 @@ mod tests {
         file.flush().unwrap();
 
         let handle = ReadWriteFileHandle::open(file.path().to_str().unwrap()).unwrap();
-        let mapping = ReadWriteMmap::new(&handle, 7, 5).unwrap();
+        let mut mapping = ReadWriteMmap::new(&handle, 7, 5).unwrap();
 
         assert_eq!(mapping.len(), 5);
-        unsafe {
-            let data = from_raw_parts_mut(mapping.data(), mapping.len());
-            data.copy_from_slice(b"WORLD");
-        }
+        mapping.as_mut_slice().copy_from_slice(b"WORLD");
 
         let mut content = String::new();
         File::open(file.path())
@@ -210,16 +211,11 @@ mod tests {
 
         let handle = ReadWriteFileHandle::open(file.path().to_str().unwrap()).unwrap();
         // Try mapping with an unaligned offset
-        let mapping = ReadWriteMmap::new(&handle, 4099, 1000).unwrap();
+        let mut mapping = ReadWriteMmap::new(&handle, 4099, 1000).unwrap();
 
         assert_eq!(mapping.len(), 1000);
-        unsafe {
-            let mapped_data = from_raw_parts_mut(mapping.data(), mapping.len());
-            // Modify the mapped data
-            (0..mapped_data.len()).for_each(|i| {
-                mapped_data[i] = 0xFF;
-            });
-        }
+        // Modify the mapped data
+        mapping.as_mut_slice().fill(0xFF);
 
         // Verify the changes
         let mut new_data = Vec::new();
@@ -252,16 +248,11 @@ mod tests {
         file.flush().unwrap();
 
         let handle = ReadWriteFileHandle::open(file.path().to_str().unwrap()).unwrap();
-        let mapping1 = ReadWriteMmap::new(&handle, 0, 5).unwrap();
-        let mapping2 = ReadWriteMmap::new(&handle, 7, 5).unwrap();
+        let mut mapping1 = ReadWriteMmap::new(&handle, 0, 5).unwrap();
+        let mut mapping2 = ReadWriteMmap::new(&handle, 7, 5).unwrap();
 
-        unsafe {
-            let data1 = from_raw_parts_mut(mapping1.data(), mapping1.len());
-            let data2 = from_raw_parts_mut(mapping2.data(), mapping2.len());
-
-            data1.copy_from_slice(b"HELLO");
-            data2.copy_from_slice(b"WORLD");
-        }
+        mapping1.as_mut_slice().copy_from_slice(b"HELLO");
+        mapping2.as_mut_slice().copy_from_slice(b"WORLD");
 
         let mut content = String::new();
         File::open(file.path())
@@ -283,13 +274,10 @@ mod tests {
             file.flush().unwrap();
 
             let handle = ReadWriteFileHandle::open(file.path().to_str().unwrap()).unwrap();
-            let mapping = ReadWriteMmap::new(&handle, 0, 10).unwrap();
+            let mut mapping = ReadWriteMmap::new(&handle, 0, 10).unwrap();
 
             assert_eq!(mapping.len(), 5);
-            unsafe {
-                let data = from_raw_parts_mut(mapping.data(), mapping.len());
-                data.copy_from_slice(b"HELLO");
-            }
+            mapping.as_mut_slice().copy_from_slice(b"HELLO");
 
             let mut content = String::new();
             File::open(file.path())
@@ -319,13 +307,10 @@ mod tests {
             file.flush().unwrap();
 
             let handle = ReadWriteFileHandle::open(file.path().to_str().unwrap()).unwrap();
-            let mapping = ReadWriteMmap::new(&handle, 10, 10).unwrap();
+            let mut mapping = ReadWriteMmap::new(&handle, 10, 10).unwrap();
 
             assert_eq!(mapping.len(), 3);
-            unsafe {
-                let data = from_raw_parts_mut(mapping.data(), mapping.len());
-                data.copy_from_slice(b"D!!");
-            }
+            mapping.as_mut_slice().copy_from_slice(b"D!!");
 
             let mut content = String::new();
             File::open(file.path())
