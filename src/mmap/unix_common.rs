@@ -1,6 +1,6 @@
 use super::*;
 use crate::util::get_allocation_granularity;
-use core::ptr;
+use core::ptr::{self, NonNull};
 use libc::*;
 
 pub(crate) fn create_mmap(
@@ -11,7 +11,7 @@ pub(crate) fn create_mmap(
 ) -> Result<(*mut c_void, usize, usize), MmapError> {
     // Special case for zero length
     if len == 0 {
-        return Ok((ptr::null_mut(), 0, 0));
+        return Ok((NonNull::dangling().as_ptr(), 0, 0));
     }
 
     let page_size = get_allocation_granularity();

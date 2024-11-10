@@ -136,15 +136,6 @@ mod tests {
     }
 
     #[test]
-    fn empty_mapping_returns_null() {
-        let file = NamedTempFile::new().unwrap();
-        let handle = ReadOnlyFileHandle::open(file.path().to_str().unwrap()).unwrap();
-
-        let mapping = ReadOnlyMmap::new(&handle, 0, 0).unwrap();
-        assert!(unsafe { mapping.data().is_null() });
-    }
-
-    #[test]
     fn can_map_entire_file() {
         let mut file = NamedTempFile::new().unwrap();
         file.write_all(b"Hello, World!").unwrap();
@@ -234,5 +225,15 @@ mod tests {
             let data = unsafe { from_raw_parts(mapping.data(), mapping.len()) };
             assert_eq!(data, b"d!");
         }
+    }
+
+    #[test]
+    fn empty_mapping_uses_non_null_pointer() {
+        let file = NamedTempFile::new().unwrap();
+        let handle = ReadOnlyFileHandle::open(file.path().to_str().unwrap()).unwrap();
+
+        let mapping = ReadOnlyMmap::new(&handle, 0, 0).unwrap();
+        assert!(unsafe { !mapping.data().is_null() });
+        assert_eq!(mapping.as_slice().len(), 0);
     }
 }

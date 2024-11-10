@@ -150,15 +150,6 @@ mod tests {
     }
 
     #[test]
-    fn empty_mapping_returns_null() {
-        let file = NamedTempFile::new().unwrap();
-        let handle = ReadWriteFileHandle::open(file.path().to_str().unwrap()).unwrap();
-
-        let mapping = ReadWriteMmap::new(&handle, 0, 0).unwrap();
-        assert!(mapping.data().is_null());
-    }
-
-    #[test]
     fn can_create_and_write_mapping() {
         let mut file = NamedTempFile::new().unwrap();
         file.write_all(b"Hello, World!").unwrap();
@@ -320,5 +311,15 @@ mod tests {
                 .unwrap();
             assert_eq!(content, "Hello, WorD!!");
         }
+    }
+
+    #[test]
+    fn empty_mapping_uses_non_null_pointer() {
+        let file = NamedTempFile::new().unwrap();
+        let handle = ReadWriteFileHandle::open(file.path().to_str().unwrap()).unwrap();
+
+        let mapping = ReadWriteMmap::new(&handle, 0, 0).unwrap();
+        assert!(!mapping.data().is_null());
+        assert_eq!(mapping.as_slice().len(), 0);
     }
 }

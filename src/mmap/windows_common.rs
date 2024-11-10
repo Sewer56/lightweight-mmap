@@ -1,7 +1,7 @@
 use super::MmapError;
 use super::*;
 use crate::util::get_allocation_granularity;
-use core::ptr::{self, null};
+use core::ptr::{null, NonNull};
 use core::{ffi::c_void, ptr::null_mut};
 use windows_sys::Win32::System::Threading::GetCurrentProcess;
 use windows_sys::Win32::{Foundation::*, System::Memory::*};
@@ -16,7 +16,7 @@ pub(crate) fn create_view(
 ) -> Result<(*mut c_void, usize, usize), MmapError> {
     // Special case for zero length
     if len == 0 {
-        return Ok((ptr::null_mut(), 0, 0));
+        return Ok((NonNull::dangling().as_ptr(), 0, 0));
     }
 
     // Lazily create the mapping if it doesn't exist
