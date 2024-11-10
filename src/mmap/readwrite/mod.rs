@@ -27,6 +27,7 @@ pub struct ReadWriteMmap<'a> {
 }
 
 unsafe impl Send for ReadWriteMmap<'_> {}
+unsafe impl Sync for ReadWriteMmap<'_> {}
 
 impl<'a> ReadWriteMmap<'a> {
     /// Creates a new read-write memory mapping for the specified file handle.

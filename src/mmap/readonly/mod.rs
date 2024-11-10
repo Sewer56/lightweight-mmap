@@ -27,6 +27,7 @@ pub struct ReadOnlyMmap<'a> {
 }
 
 unsafe impl Send for ReadOnlyMmap<'_> {}
+unsafe impl Sync for ReadOnlyMmap<'_> {}
 
 impl<'a> ReadOnlyMmap<'a> {
     /// Creates a new read-only memory mapping for the specified file handle.
