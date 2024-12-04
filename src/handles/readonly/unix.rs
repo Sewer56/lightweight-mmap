@@ -9,6 +9,7 @@ pub struct InnerHandle {
     _marker: PhantomData<()>,
 }
 
+unsafe impl Sync for InnerHandle {}
 unsafe impl Send for InnerHandle {}
 
 impl InnerHandle {
