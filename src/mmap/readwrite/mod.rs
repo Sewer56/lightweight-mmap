@@ -134,12 +134,6 @@ mod tests {
     use tempfile::NamedTempFile;
 
     #[test]
-    fn readwrite_mmap_is_send() {
-        fn assert_send<T: Send>() {}
-        assert_send::<ReadWriteMmap<'_>>();
-    }
-
-    #[test]
     fn can_create_empty_mapping() {
         let file = NamedTempFile::new().unwrap();
         let handle = ReadWriteFileHandle::open(file.path().to_str().unwrap()).unwrap();

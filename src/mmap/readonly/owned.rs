@@ -11,6 +11,11 @@ pub struct OwnedReadOnlyMmap {
     mmap: ReadOnlyMmap<'static>, // Use 'static since we own the handle
 }
 
+// SAFETY: OwnedReadOnlyMmap is Sync because file access does not have thread restrictions.
+// SAFETY: OwnedReadOnlyMmap is Send because it owns the handle via Arc.
+unsafe impl Send for OwnedReadOnlyMmap {}
+unsafe impl Sync for OwnedReadOnlyMmap {}
+
 impl OwnedReadOnlyMmap {
     /// Returns a reference to the underlying file handle
     pub fn handle(&self) -> Arc<ReadOnlyFileHandle> {
@@ -91,6 +96,12 @@ mod tests {
     fn readonly_owned_mmap_is_send() {
         fn assert_send<T: Send>() {}
         assert_send::<OwnedReadOnlyMmap>();
+    }
+
+    #[test]
+    fn readonly_owned_mmap_is_sync() {
+        fn assert_sync<T: Sync>() {}
+        assert_sync::<OwnedReadOnlyMmap>();
     }
 
     #[test]

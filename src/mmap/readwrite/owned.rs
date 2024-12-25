@@ -11,6 +11,8 @@ pub struct OwnedReadWriteMmap {
     mmap: ReadWriteMmap<'static>, // Use 'static since we own the handle
 }
 
+// SAFETY: OwnedReadWriteMmap is Sync because file access does not have thread restrictions.
+// SAFETY: OwnedReadWriteMmap is Send because it owns the handle via Arc.
 unsafe impl Send for OwnedReadWriteMmap {}
 unsafe impl Sync for OwnedReadWriteMmap {}
 
