@@ -1,7 +1,7 @@
 use super::HandleOpenError;
+use alloc::ffi::CString;
 use core::mem::zeroed;
 use libc::*;
-use std::ffi::CString;
 
 /// Default file permissions: rw-r--r-- (644)
 const DEFAULT_FILE_MODE: mode_t = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH;

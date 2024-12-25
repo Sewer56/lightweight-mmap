@@ -1,8 +1,11 @@
 use super::MmapError;
 use crate::handles::readonly::ReadOnlyFileHandle;
 use crate::mmap::readonly::ReadOnlyMmap;
-use std::ops::{Deref, DerefMut};
-use std::sync::Arc;
+use alloc::sync::Arc;
+use core::{
+    mem::transmute,
+    ops::{Deref, DerefMut},
+};
 
 /// An owned version of ReadOnlyMmap that owns its file handle via Arc, making it safe to send across threads
 /// and allowing multiple mappings to share the same handle.
@@ -45,7 +48,7 @@ impl OwnedReadOnlyMmap {
         let mmap = ReadOnlyMmap::new(&handle, offset, length)?;
 
         // Convert the mmap to use a 'static lifetime since we own the handle via Arc
-        let mmap = std::mem::transmute::<ReadOnlyMmap<'_>, ReadOnlyMmap<'static>>(mmap);
+        let mmap = transmute::<ReadOnlyMmap<'_>, ReadOnlyMmap<'static>>(mmap);
 
         Ok(Self { handle, mmap })
     }

@@ -2,8 +2,9 @@
 #![allow(unused_imports)]
 use crate::handles::ReadOnlyFileHandle;
 use crate::handles::ReadWriteFileHandle;
+use alloc::ffi::CString;
+use core::ffi::CStr;
 use core::ptr::null;
-use std::ffi::{CStr, CString};
 use std::fs::*;
 use std::os::raw::*;
 
