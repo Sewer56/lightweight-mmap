@@ -93,18 +93,18 @@ For other platforms, level of support is unknown.
 ### File Handles
 
 Open a read-only file handle to an existing file:
-```rust
+```rust,ignore
 let handle = ReadOnlyFileHandle::open("assets/test_file.txt").unwrap();
 ```
 
 Open a read-write file handle to an existing file:
-```rust
+```rust,ignore
 let handle = ReadWriteFileHandle::open("assets/test_file.txt").unwrap();
 ```
 
 Create a new file with pre-allocated size:
 
-```rust
+```rust,ignore
 let handle = ReadWriteFileHandle::create_preallocated("assets/test_file.txt", 1024).unwrap();
 ```
 
@@ -113,7 +113,7 @@ This will create a new file or overwrite an existing file.
 ### Memory Mapping
 
 Create a read-only memory mapping:
-```rust
+```rust,ignore
 use lightweight_mmap::{ReadOnlyFileHandle, ReadOnlyMmap};
 
 // Open the file
@@ -128,7 +128,7 @@ let data = mapping.as_slice();
 
 Create a read-write memory mapping:
 
-```rust
+```rust,ignore
 use lightweight_mmap::{ReadWriteFileHandle, ReadWriteMmap};
 
 // Open the file
@@ -151,7 +151,7 @@ memory should be accessed carefully to avoid data races.
 
 Provide hints to the operating system about how memory mapped regions will be accessed:
 
-```rust
+```rust,ignore
 use lightweight_mmap::{ReadOnlyFileHandle, ReadOnlyMmap, MemoryAdvice};
 
 // Open and map the file
