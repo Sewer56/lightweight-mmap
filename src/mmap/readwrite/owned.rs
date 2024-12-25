@@ -1,8 +1,9 @@
 use super::MmapError;
 use crate::handles::readwrite::ReadWriteFileHandle;
 use crate::mmap::readwrite::ReadWriteMmap;
-use std::ops::{Deref, DerefMut};
-use std::sync::Arc;
+use alloc::sync::Arc;
+use core::mem::transmute;
+use core::ops::{Deref, DerefMut};
 
 /// An owned version of ReadWriteMmap that owns its file handle via Arc, making it safe to send across threads
 /// and allowing multiple mappings to share the same handle.
@@ -46,7 +47,7 @@ impl OwnedReadWriteMmap {
         let mmap = ReadWriteMmap::new(&handle, offset, length)?;
 
         // Convert the mmap to use a 'static lifetime since we own the handle via Arc
-        let mmap = std::mem::transmute::<ReadWriteMmap<'_>, ReadWriteMmap<'static>>(mmap);
+        let mmap = transmute::<ReadWriteMmap<'_>, ReadWriteMmap<'static>>(mmap);
 
         Ok(Self { handle, mmap })
     }

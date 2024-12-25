@@ -7,3 +7,5 @@ pub mod handles;
 #[cfg(feature = "mmap")]
 pub mod mmap;
 pub(crate) mod util;
+
+extern crate alloc;
