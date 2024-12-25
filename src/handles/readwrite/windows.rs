@@ -2,7 +2,6 @@
 
 use super::windows_common::*;
 use crate::*;
-use ::core::marker::PhantomData;
 use handles::HandleOpenError;
 use windows_sys::Win32::{Foundation::*, Storage::FileSystem::*};
 
@@ -14,7 +13,6 @@ pub struct InnerHandle {
     handle: HANDLE,
     #[cfg(feature = "mmap")]
     pub(crate) mapping: UnsafeCell<HANDLE>,
-    _marker: PhantomData<()>,
 }
 
 unsafe impl Sync for InnerHandle {}
@@ -29,7 +27,6 @@ impl InnerHandle {
             handle,
             #[cfg(feature = "mmap")]
             mapping: UnsafeCell::new(INVALID_HANDLE_VALUE),
-            _marker: PhantomData,
         })
     }
 
@@ -50,7 +47,6 @@ impl InnerHandle {
             handle,
             #[cfg(feature = "mmap")]
             mapping: UnsafeCell::new(INVALID_HANDLE_VALUE),
-            _marker: PhantomData,
         })
     }
 }

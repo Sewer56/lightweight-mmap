@@ -1,12 +1,10 @@
 use super::*;
-use core::marker::PhantomData;
 use libc::*;
 use unix_common::open_with_flags;
 
 /// Unix platform-specific implementation for [`ReadOnlyFileHandle`].
 pub struct InnerHandle {
     fd: c_int,
-    _marker: PhantomData<()>,
 }
 
 unsafe impl Sync for InnerHandle {}
@@ -24,10 +22,7 @@ impl InnerHandle {
     /// Returns a [`HandleOpenError`] if the file cannot be opened.
     pub fn open(path: &str) -> Result<Self, HandleOpenError> {
         let fd = open_with_flags(path, O_RDONLY)?;
-        Ok(InnerHandle {
-            fd,
-            _marker: PhantomData,
-        })
+        Ok(InnerHandle { fd })
     }
 
     /// Returns the raw file descriptor.

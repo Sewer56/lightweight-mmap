@@ -1,12 +1,10 @@
 use super::*;
-use core::marker::PhantomData;
 use libc::*;
 use unix_common::*;
 
 /// Unix platform-specific implementation for [`ReadWriteFileHandle`].
 pub struct InnerHandle {
     fd: c_int,
-    _marker: PhantomData<()>,
 }
 
 unsafe impl Sync for InnerHandle {}
@@ -15,10 +13,7 @@ unsafe impl Send for InnerHandle {}
 impl InnerHandle {
     pub fn open(path: &str) -> Result<Self, HandleOpenError> {
         let fd = open_with_flags(path, O_RDWR)?;
-        Ok(InnerHandle {
-            fd,
-            _marker: PhantomData,
-        })
+        Ok(InnerHandle { fd })
     }
 
     /// Returns the raw file descriptor.
@@ -33,10 +28,7 @@ impl InnerHandle {
             return Err(e);
         }
 
-        Ok(InnerHandle {
-            fd,
-            _marker: PhantomData,
-        })
+        Ok(InnerHandle { fd })
     }
 }
 
