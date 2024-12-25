@@ -12,6 +12,9 @@ use unix::*;
 #[cfg(target_os = "windows")]
 use windows::*;
 
+mod owned;
+pub use owned::*;
+
 /// A read-write memory mapping that allows shared access to a file's contents.
 ///
 /// This struct provides a safe wrapper around platform-specific memory mapping
@@ -25,9 +28,6 @@ pub struct ReadWriteMmap<'a> {
     offset_adjustment: usize,
     length: usize,
 }
-
-unsafe impl Send for ReadWriteMmap<'_> {}
-unsafe impl Sync for ReadWriteMmap<'_> {}
 
 impl<'a> ReadWriteMmap<'a> {
     /// Creates a new read-write memory mapping for the specified file handle.
@@ -132,12 +132,6 @@ mod tests {
         io::{Read, Write},
     };
     use tempfile::NamedTempFile;
-
-    #[test]
-    fn readwrite_mmap_is_send() {
-        fn assert_send<T: Send>() {}
-        assert_send::<ReadWriteMmap<'_>>();
-    }
 
     #[test]
     fn can_create_empty_mapping() {

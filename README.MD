@@ -147,6 +147,24 @@ unsafe {
 Note: Memory mappings cannot outlive their file handles (compiler should ensure this), and the mapped
 memory should be accessed carefully to avoid data races.
 
+#### Use Across Threads
+
+The default implementation of `Mmap` cannot be shared across threads, the lifetime
+is tied to the current stack. If you need to share across threads, use the `Owned` variants.
+
+```rust,ignore
+let handle = Arc::new(ReadOnlyFileHandle::open("data.bin").unwrap());
+let mapping = unsafe { OwnedReadOnlyMmap::new(handle, 0, 1024).unwrap() };
+```
+
+```rust,ignore
+let handle = Arc::new(ReadWriteFileHandle::open("data.bin").unwrap());
+let mapping = unsafe { OwnedReadWriteMmap::new(handle, 0, 1024).unwrap() };
+```
+
+The `Owned` variants internally use `Arc` to share the lifetime of the handle across
+instances.
+
 #### Memory Advice
 
 Provide hints to the operating system about how memory mapped regions will be accessed:

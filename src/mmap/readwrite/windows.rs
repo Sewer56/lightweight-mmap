@@ -8,8 +8,6 @@ pub(crate) struct ReadWriteMmapInner<'a> {
     _phantom: PhantomData<&'a ReadWriteFileHandle>,
 }
 
-unsafe impl Send for ReadWriteMmapInner<'_> {}
-
 impl<'a> ReadWriteMmapInner<'a> {
     pub(crate) fn new(
         handle: &'a ReadWriteFileHandle,

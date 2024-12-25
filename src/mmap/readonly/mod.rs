@@ -12,6 +12,9 @@ use unix::*;
 #[cfg(target_os = "windows")]
 use windows::*;
 
+mod owned;
+pub use owned::*;
+
 /// A read-only memory mapping that allows shared access to a file's contents.
 ///
 /// This struct provides a safe wrapper around platform-specific memory mapping
@@ -25,9 +28,6 @@ pub struct ReadOnlyMmap<'a> {
     offset_adjustment: usize,
     length: usize,
 }
-
-unsafe impl Send for ReadOnlyMmap<'_> {}
-unsafe impl Sync for ReadOnlyMmap<'_> {}
 
 impl<'a> ReadOnlyMmap<'a> {
     /// Creates a new read-only memory mapping for the specified file handle.
@@ -118,12 +118,6 @@ mod tests {
     use super::*;
     use std::io::Write;
     use tempfile::NamedTempFile;
-
-    #[test]
-    fn readonly_mmap_is_send() {
-        fn assert_send<T: Send>() {}
-        assert_send::<ReadOnlyMmap<'_>>();
-    }
 
     #[test]
     fn can_create_empty_mapping() {
