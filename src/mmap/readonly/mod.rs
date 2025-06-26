@@ -113,7 +113,7 @@ impl<'a> ReadOnlyMmap<'a> {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "std"))]
 mod tests {
     use super::*;
     use std::io::Write;

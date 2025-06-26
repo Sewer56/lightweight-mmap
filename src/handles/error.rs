@@ -1,3 +1,5 @@
+#[cfg(not(feature = "std"))]
+use alloc::string::{String, ToString};
 use core::fmt::*;
 
 /// Represents errors that can occur when providing file data.

@@ -20,6 +20,18 @@ unsafe impl Send for InnerHandle {}
 
 impl InnerHandle {
     /// Opens the file with appropriate access.
+    #[cfg(feature = "std")]
+    pub fn open(path: &std::path::Path) -> Result<Self, HandleOpenError> {
+        let handle = open_with_access(path, GENERIC_READ, OPEN_EXISTING)?;
+        Ok(InnerHandle {
+            handle,
+            #[cfg(feature = "mmap")]
+            mapping: UnsafeCell::new(INVALID_HANDLE_VALUE),
+        })
+    }
+
+    /// Opens the file with appropriate access.
+    #[cfg(not(feature = "std"))]
     pub fn open(path: &str) -> Result<Self, HandleOpenError> {
         let handle = open_with_access(path, GENERIC_READ, OPEN_EXISTING)?;
         Ok(InnerHandle {

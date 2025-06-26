@@ -1,7 +1,5 @@
 use core::mem::zeroed;
-use core::ptr::null_mut;
 use windows_sys::Win32::System::SystemInformation::*;
-use windows_sys::Win32::{Foundation::*, Globalization::*};
 
 /// Converts a `&str` to a wide string (`Box<[u16]>`) for Windows API using [`MultiByteToWideChar`].
 ///
@@ -12,7 +10,11 @@ use windows_sys::Win32::{Foundation::*, Globalization::*};
 /// # Errors
 ///
 /// Returns the Windows error code if the conversion fails.
+#[cfg(not(feature = "std"))]
 pub fn to_wide(s: &str) -> Result<Box<[u16]>, u32> {
+    use core::ptr::null_mut;
+    use windows_sys::Win32::{Foundation::*, Globalization::*};
+
     let c_str = s.as_bytes();
 
     unsafe {

@@ -20,6 +20,19 @@ unsafe impl Send for InnerHandle {}
 
 impl InnerHandle {
     /// Opens the file with appropriate access.
+    #[cfg(feature = "std")]
+    pub fn open(path: &std::path::Path) -> Result<Self, HandleOpenError> {
+        let handle = open_with_access(path, GENERIC_READ | GENERIC_WRITE, OPEN_EXISTING)?;
+
+        Ok(InnerHandle {
+            handle,
+            #[cfg(feature = "mmap")]
+            mapping: UnsafeCell::new(INVALID_HANDLE_VALUE),
+        })
+    }
+
+    /// Opens the file with appropriate access.
+    #[cfg(not(feature = "std"))]
     pub fn open(path: &str) -> Result<Self, HandleOpenError> {
         let handle = open_with_access(path, GENERIC_READ | GENERIC_WRITE, OPEN_EXISTING)?;
 
@@ -35,6 +48,23 @@ impl InnerHandle {
         self.handle
     }
 
+    #[cfg(feature = "std")]
+    pub fn create_preallocated(path: &std::path::Path, size: i64) -> Result<Self, HandleOpenError> {
+        let handle = open_with_access(path, GENERIC_READ | GENERIC_WRITE, OPEN_ALWAYS)?;
+
+        if let Err(e) = set_file_size(handle, size) {
+            unsafe { CloseHandle(handle) };
+            return Err(e);
+        }
+
+        Ok(InnerHandle {
+            handle,
+            #[cfg(feature = "mmap")]
+            mapping: UnsafeCell::new(INVALID_HANDLE_VALUE),
+        })
+    }
+
+    #[cfg(not(feature = "std"))]
     pub fn create_preallocated(path: &str, size: i64) -> Result<Self, HandleOpenError> {
         let handle = open_with_access(path, GENERIC_READ | GENERIC_WRITE, OPEN_ALWAYS)?;
 
