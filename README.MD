@@ -93,19 +93,23 @@ For other platforms, level of support is unknown.
 ### File Handles
 
 Open a read-only file handle to an existing file:
-```rust,ignore
-let handle = ReadOnlyFileHandle::open("assets/test_file.txt").unwrap();
+```rust
+use lightweight_mmap::ReadOnlyFileHandle;
+let handle = ReadOnlyFileHandle::open("Cargo.toml").unwrap();
 ```
 
 Open a read-write file handle to an existing file:
-```rust,ignore
-let handle = ReadWriteFileHandle::open("assets/test_file.txt").unwrap();
+```rust
+use lightweight_mmap::ReadWriteFileHandle;
+let handle = ReadWriteFileHandle::open("Cargo.toml").unwrap();
 ```
 
 Create a new file with pre-allocated size:
 
-```rust,ignore
-let handle = ReadWriteFileHandle::create_preallocated("assets/test_file.txt", 1024).unwrap();
+```rust
+use lightweight_mmap::ReadWriteFileHandle;
+let handle = ReadWriteFileHandle::create_preallocated("test_file.txt", 1024).unwrap();
+# std::fs::remove_file("test_file.txt").ok();
 ```
 
 This will create a new file or overwrite an existing file.
@@ -113,35 +117,41 @@ This will create a new file or overwrite an existing file.
 ### Memory Mapping
 
 Create a read-only memory mapping:
-```rust,ignore
+```rust
+# #[cfg(feature = "mmap")]
+# {
 use lightweight_mmap::{ReadOnlyFileHandle, ReadOnlyMmap};
 
 // Open the file
-let handle = ReadOnlyFileHandle::open("data.bin").unwrap();
+let handle = ReadOnlyFileHandle::open("Cargo.toml").unwrap();
 
-// Map 1024 bytes starting at offset 4096
-let mapping = ReadOnlyMmap::new(&handle, 4096, 1024).unwrap();
+// Map 1024 bytes starting at offset 0
+let mapping = ReadOnlyMmap::new(&handle, 0, 1024).unwrap();
 
 // Access the mapped memory
 let data = mapping.as_slice();
+# }
 ```
 
 Create a read-write memory mapping:
 
-```rust,ignore
+```rust
+# #[cfg(feature = "mmap")]
+# {
 use lightweight_mmap::{ReadWriteFileHandle, ReadWriteMmap};
 
-// Open the file
-let handle = ReadWriteFileHandle::open("data.bin").unwrap();
+// Create a temporary file for writing
+let handle = ReadWriteFileHandle::create_preallocated("temp_write.txt", 1024).unwrap();
 
-// Map 1024 bytes starting at offset 4096
-let mapping = ReadWriteMmap::new(&handle, 4096, 1024).unwrap();
+// Map 1024 bytes starting at offset 0
+let mut mapping = ReadWriteMmap::new(&handle, 0, 1024).unwrap();
 
 // Access and modify the mapped memory
-unsafe {
-    let data = core::slice::from_raw_parts_mut(mapping.data(), mapping.len());
-    data[0] = 42;
-}
+let data = mapping.as_mut_slice();
+data[0] = 42;
+
+# std::fs::remove_file("temp_write.txt").ok();
+# }
 ```
 
 Note: Memory mappings cannot outlive their file handles (compiler should ensure this), and the mapped
@@ -152,14 +162,27 @@ memory should be accessed carefully to avoid data races.
 The default implementation of `Mmap` cannot be shared across threads, the lifetime
 is tied to the current stack. If you need to share across threads, use the `Owned` variants.
 
-```rust,ignore
-let handle = Arc::new(ReadOnlyFileHandle::open("data.bin").unwrap());
+```rust
+# #[cfg(feature = "mmap")]
+# {
+use lightweight_mmap::{ReadOnlyFileHandle, OwnedReadOnlyMmap};
+use std::sync::Arc;
+
+let handle = Arc::new(ReadOnlyFileHandle::open("Cargo.toml").unwrap());
 let mapping = unsafe { OwnedReadOnlyMmap::new(handle, 0, 1024).unwrap() };
+# }
 ```
 
-```rust,ignore
-let handle = Arc::new(ReadWriteFileHandle::open("data.bin").unwrap());
+```rust
+# #[cfg(feature = "mmap")]
+# {
+use lightweight_mmap::{ReadWriteFileHandle, OwnedReadWriteMmap};
+use std::sync::Arc;
+
+let handle = Arc::new(ReadWriteFileHandle::create_preallocated("temp_owned.txt", 1024).unwrap());
 let mapping = unsafe { OwnedReadWriteMmap::new(handle, 0, 1024).unwrap() };
+# std::fs::remove_file("temp_owned.txt").ok();
+# }
 ```
 
 The `Owned` variants internally use `Arc` to share the lifetime of the handle across
@@ -169,11 +192,13 @@ instances.
 
 Provide hints to the operating system about how memory mapped regions will be accessed:
 
-```rust,ignore
+```rust
+# #[cfg(feature = "mmap")]
+# {
 use lightweight_mmap::{ReadOnlyFileHandle, ReadOnlyMmap, MemoryAdvice};
 
 // Open and map the file
-let handle = ReadOnlyFileHandle::open("data.bin").unwrap();
+let handle = ReadOnlyFileHandle::open("Cargo.toml").unwrap();
 let mapping = ReadOnlyMmap::new(&handle, 0, 1024).unwrap();
 
 // Indicate we'll access this memory soon
@@ -184,6 +209,7 @@ mapping.advise(MemoryAdvice::SEQUENTIAL);
 
 // Combine multiple hints
 mapping.advise(MemoryAdvice::WILL_NEED | MemoryAdvice::SEQUENTIAL);
+# }
 ```
 
 Available advice flags:
