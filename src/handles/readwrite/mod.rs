@@ -129,7 +129,7 @@ impl ReadWriteFileHandle {
 #[cfg(all(test, feature = "std"))]
 mod tests {
     use super::*;
-    use std::{fs::*, io::*};
+    use std::{fs::*, io::*, string::String, vec::Vec};
     use tempfile::{NamedTempFile, TempDir};
 
     #[test]

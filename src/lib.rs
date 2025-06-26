@@ -1,5 +1,9 @@
 #![doc = include_str!("../README.MD")]
-#![cfg_attr(not(feature = "std"), no_std)]
+#![no_std]
+
+#[cfg(feature = "std")]
+extern crate std;
+
 // #[cfg(feature = "c-exports")]
 // pub mod exports;
 
