@@ -12,7 +12,7 @@ readme = "README.MD"
 default = ["std", "mmap"]
 std = []
 # Feature for enabling C library exports. (Test code build size)
-c-exports = []
+# c-exports = []
 # Enables memory mapping operations.
 # When this is disabled, library can only be used to open file handles.
 # When this is enabled, library can be used to open file handles, and extra data for fast opening
