@@ -220,6 +220,55 @@ Available advice flags:
 Note: These are hints and may be ignored by the operating system.
 Not all hints are supported on all platforms. On Windows, only `WILL_NEED` has an effect.
 
+## API Differences: `std` vs `no_std`
+
+The API surface changes depending on whether the `std` feature is enabled:
+
+### With `std` feature (default)
+
+When the `std` feature is enabled, file path parameters accept any type that implements `AsRef<std::path::Path>`:
+
+```rust
+# #[cfg(feature = "std")]
+# {
+use lightweight_mmap::{ReadOnlyFileHandle, ReadWriteFileHandle};
+use std::path::Path;
+
+// These all work with std feature enabled:
+let handle1 = ReadOnlyFileHandle::open("Cargo.toml").unwrap();
+let handle2 = ReadOnlyFileHandle::open(Path::new("Cargo.toml")).unwrap();
+let handle3 = ReadWriteFileHandle::open("Cargo.toml").unwrap();
+let handle4 = ReadWriteFileHandle::create_preallocated("temp_test.txt", 1024).unwrap();
+# std::fs::remove_file("temp_test.txt").ok();
+# }
+```
+
+### Without `std` feature (no_std)
+
+When the `std` feature is disabled, file path parameters only accept `&str`:
+
+```rust
+# #[cfg(not(feature = "std"))]
+# {
+use lightweight_mmap::ReadOnlyFileHandle;
+
+// Only string literals and &str work in no_std:
+let handle1 = ReadOnlyFileHandle::open("Cargo.toml").unwrap();
+
+// Path objects are not available in no_std environments
+// Note: File creation via create_preallocated() typically requires std
+# }
+```
+
+**Affected Methods:**
+
+- `ReadOnlyFileHandle::open()`
+- `ReadWriteFileHandle::open()`
+- `ReadWriteFileHandle::create_preallocated()`
+
+This design allows the library to work efficiently in both `std` and `no_std` environments while
+providing the most ergonomic API for each context.
+
 ## Development
 
 For information on how to work with this codebase, see [README-DEV.MD](README-DEV.MD).
