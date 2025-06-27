@@ -37,6 +37,22 @@ impl ReadOnlyFileHandle {
     /// # Errors
     ///
     /// Returns a `HandleOpenError` if the file cannot be opened.
+    #[cfg(feature = "std")]
+    pub fn open<P: AsRef<std::path::Path>>(path: P) -> Result<Self, HandleOpenError> {
+        let inner = InnerHandle::open(path.as_ref())?;
+        Ok(ReadOnlyFileHandle { inner })
+    }
+
+    /// Opens a file in read-only mode with shared access.
+    ///
+    /// # Arguments
+    ///
+    /// * `path` - The path to the file to open.
+    ///
+    /// # Errors
+    ///
+    /// Returns a `HandleOpenError` if the file cannot be opened.
+    #[cfg(not(feature = "std"))]
     pub fn open(path: &str) -> Result<Self, HandleOpenError> {
         let inner = InnerHandle::open(path)?;
         Ok(ReadOnlyFileHandle { inner })
@@ -70,7 +86,7 @@ impl ReadOnlyFileHandle {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "std"))]
 mod tests {
     use std::{fs::OpenOptions, io::Write};
 

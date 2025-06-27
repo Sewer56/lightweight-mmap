@@ -37,6 +37,22 @@ impl ReadWriteFileHandle {
     /// # Errors
     ///
     /// Returns a `HandleOpenError` if the file cannot be opened.
+    #[cfg(feature = "std")]
+    pub fn open<P: AsRef<std::path::Path>>(path: P) -> Result<Self, HandleOpenError> {
+        let inner = InnerHandle::open(path.as_ref())?;
+        Ok(ReadWriteFileHandle { inner })
+    }
+
+    /// Opens a file in read-write mode with shared access.
+    ///
+    /// # Arguments
+    ///
+    /// * `path` - The path to the file to open.
+    ///
+    /// # Errors
+    ///
+    /// Returns a `HandleOpenError` if the file cannot be opened.
+    #[cfg(not(feature = "std"))]
     pub fn open(path: &str) -> Result<Self, HandleOpenError> {
         let inner = InnerHandle::open(path)?;
         Ok(ReadWriteFileHandle { inner })
@@ -58,6 +74,32 @@ impl ReadWriteFileHandle {
     /// - The file cannot be created
     /// - Pre-allocation fails
     /// - The path is invalid
+    #[cfg(feature = "std")]
+    pub fn create_preallocated<P: AsRef<std::path::Path>>(
+        path: P,
+        size: i64,
+    ) -> Result<Self, HandleOpenError> {
+        let inner = InnerHandle::create_preallocated(path.as_ref(), size)?;
+        Ok(ReadWriteFileHandle { inner })
+    }
+
+    /// Creates a new file with pre-allocated size.
+    ///
+    /// This creates a new file and pre-allocates the specified amount of space.
+    /// If the file already exists, it will be truncated and pre-allocated to the specified size.
+    ///
+    /// # Arguments
+    ///
+    /// * `path` - The path where the file should be created
+    /// * `size` - The size to pre-allocate in bytes
+    ///
+    /// # Errors
+    ///
+    /// Returns a [`HandleOpenError`] if:
+    /// - The file cannot be created
+    /// - Pre-allocation fails
+    /// - The path is invalid
+    #[cfg(not(feature = "std"))]
     pub fn create_preallocated(path: &str, size: i64) -> Result<Self, HandleOpenError> {
         let inner = InnerHandle::create_preallocated(path, size)?;
         Ok(ReadWriteFileHandle { inner })
@@ -84,7 +126,7 @@ impl ReadWriteFileHandle {
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, feature = "std"))]
 mod tests {
     use super::*;
     use std::{fs::*, io::*};

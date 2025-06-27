@@ -1,3 +1,6 @@
+#[cfg(not(feature = "std"))]
+use alloc::string::{String, ToString};
+
 /// Represents errors that can occur during memory mapping.
 #[derive(Debug, PartialEq, Eq)]
 #[cfg_attr(not(feature = "no-format"), derive(thiserror::Error))]
