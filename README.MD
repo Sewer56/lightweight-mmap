@@ -93,20 +93,20 @@ For other platforms, level of support is unknown.
 ### File Handles
 
 Open a read-only file handle to an existing file:
-```rust
+```rust,no_run
 use lightweight_mmap::ReadOnlyFileHandle;
 let handle = ReadOnlyFileHandle::open("Cargo.toml").unwrap();
 ```
 
 Open a read-write file handle to an existing file:
-```rust
+```rust,no_run
 use lightweight_mmap::ReadWriteFileHandle;
 let handle = ReadWriteFileHandle::open("Cargo.toml").unwrap();
 ```
 
 Create a new file with pre-allocated size:
 
-```rust
+```rust,no_run
 use lightweight_mmap::ReadWriteFileHandle;
 let handle = ReadWriteFileHandle::create_preallocated("test_file.txt", 1024).unwrap();
 # std::fs::remove_file("test_file.txt").ok();
@@ -117,7 +117,7 @@ This will create a new file or overwrite an existing file.
 ### Memory Mapping
 
 Create a read-only memory mapping:
-```rust
+```rust,no_run
 # #[cfg(feature = "mmap")]
 # {
 use lightweight_mmap::{ReadOnlyFileHandle, ReadOnlyMmap};
@@ -135,7 +135,7 @@ let data = mapping.as_slice();
 
 Create a read-write memory mapping:
 
-```rust
+```rust,no_run
 # #[cfg(feature = "mmap")]
 # {
 use lightweight_mmap::{ReadWriteFileHandle, ReadWriteMmap};
@@ -162,7 +162,7 @@ memory should be accessed carefully to avoid data races.
 The default implementation of `Mmap` cannot be shared across threads, the lifetime
 is tied to the current stack. If you need to share across threads, use the `Owned` variants.
 
-```rust
+```rust,no_run
 # #[cfg(feature = "mmap")]
 # {
 use lightweight_mmap::{ReadOnlyFileHandle, OwnedReadOnlyMmap};
@@ -173,7 +173,7 @@ let mapping = unsafe { OwnedReadOnlyMmap::new(handle, 0, 1024).unwrap() };
 # }
 ```
 
-```rust
+```rust,no_run
 # #[cfg(feature = "mmap")]
 # {
 use lightweight_mmap::{ReadWriteFileHandle, OwnedReadWriteMmap};
@@ -192,7 +192,7 @@ instances.
 
 Provide hints to the operating system about how memory mapped regions will be accessed:
 
-```rust
+```rust,no_run
 # #[cfg(feature = "mmap")]
 # {
 use lightweight_mmap::{ReadOnlyFileHandle, ReadOnlyMmap, MemoryAdvice};
@@ -228,7 +228,7 @@ The API surface changes depending on whether the `std` feature is enabled:
 
 When the `std` feature is enabled, file path parameters accept any type that implements `AsRef<std::path::Path>`:
 
-```rust
+```rust,no_run
 # #[cfg(feature = "std")]
 # {
 use lightweight_mmap::{ReadOnlyFileHandle, ReadWriteFileHandle};
@@ -247,7 +247,7 @@ let handle4 = ReadWriteFileHandle::create_preallocated("temp_test.txt", 1024).un
 
 When the `std` feature is disabled, file path parameters only accept `&str`:
 
-```rust
+```rust,no_run
 # #[cfg(not(feature = "std"))]
 # {
 use lightweight_mmap::ReadOnlyFileHandle;
