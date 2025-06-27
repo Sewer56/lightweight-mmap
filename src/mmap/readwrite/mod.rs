@@ -130,6 +130,9 @@ mod tests {
     use std::{
         fs::File,
         io::{Read, Write},
+        string::String,
+        vec,
+        vec::Vec,
     };
     use tempfile::NamedTempFile;
 

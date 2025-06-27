@@ -1,4 +1,3 @@
-#[cfg(not(feature = "std"))]
 use alloc::string::{String, ToString};
 
 /// Represents errors that can occur during memory mapping.

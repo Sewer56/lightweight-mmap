@@ -24,6 +24,7 @@ pub(crate) fn open_with_access(
     // Convert Path to wide string directly via OsStr
     use std::iter::once;
     use std::os::windows::ffi::OsStrExt;
+    use std::vec::Vec;
     let wide_path: Vec<u16> = path.as_os_str().encode_wide().chain(once(0)).collect();
 
     let handle = unsafe {

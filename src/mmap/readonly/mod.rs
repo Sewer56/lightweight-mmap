@@ -117,6 +117,7 @@ impl<'a> ReadOnlyMmap<'a> {
 mod tests {
     use super::*;
     use std::io::Write;
+    use std::vec;
     use tempfile::NamedTempFile;
 
     #[test]
