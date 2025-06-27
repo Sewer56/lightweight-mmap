@@ -96,7 +96,8 @@ jobs:
 
           if echo "$SEARCH_RESULT" | grep -q "^lightweight-mmap "; then
             rustup target add ${{ matrix.target }}
-            cargo install cargo-semver-checks
+            # binstall installed in devops-rust-test-and-coverage@v1
+            cargo binstall cargo-semver-checks
             ## Replace spaces with commas.
             cargo semver-checks --target ${{ matrix.target }} --features "$(echo "${{ matrix.features }}" | tr ' ' ',')"
           else
