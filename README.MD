@@ -243,6 +243,9 @@ let handle4 = ReadWriteFileHandle::create_preallocated("temp_test.txt", 1024).un
 # }
 ```
 
+Existing `no_std` code with `&str` should continue to work, but for wrappers of `&str` 
+you may need to implement `AsRef<std::path::Path>` for your type.
+
 ### Without `std` feature (no_std)
 
 When the `std` feature is disabled, file path parameters only accept `&str`:
