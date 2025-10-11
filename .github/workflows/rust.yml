@@ -54,16 +54,16 @@ jobs:
           # aarch64 is disabled; because there is no native runner
 
           # macOS Targets - std features
-          - { os: macos-13, target: x86_64-apple-darwin, use-pgo: true, use-cross: false, features: "std mmap" }
-          - { os: macos-13, target: x86_64-apple-darwin, use-pgo: true, use-cross: false, features: "std mmap no-format" }
-          - { os: macos-13, target: x86_64-apple-darwin, use-pgo: true, use-cross: false, features: "std mmap no-format trim-file-lengths" }
+          - { os: macos-15-intel, target: x86_64-apple-darwin, use-pgo: true, use-cross: false, features: "std mmap" }
+          - { os: macos-15-intel, target: x86_64-apple-darwin, use-pgo: true, use-cross: false, features: "std mmap no-format" }
+          - { os: macos-15-intel, target: x86_64-apple-darwin, use-pgo: true, use-cross: false, features: "std mmap no-format trim-file-lengths" }
 
           # macOS Targets - no_std features
-          - { os: macos-13, target: x86_64-apple-darwin, use-pgo: true, use-cross: false, features: "mmap" }
+          - { os: macos-15-intel, target: x86_64-apple-darwin, use-pgo: true, use-cross: false, features: "mmap" }
 
-          - { os: macos-14, target: aarch64-apple-darwin, use-pgo: true, use-cross: false, features: "std mmap" }
-          - { os: macos-14, target: aarch64-apple-darwin, use-pgo: true, use-cross: false, features: "std mmap no-format" }
-          - { os: macos-14, target: aarch64-apple-darwin, use-pgo: true, use-cross: false, features: "std mmap no-format trim-file-lengths" }
+          - { os: macos-latest, target: aarch64-apple-darwin, use-pgo: true, use-cross: false, features: "std mmap" }
+          - { os: macos-latest, target: aarch64-apple-darwin, use-pgo: true, use-cross: false, features: "std mmap no-format" }
+          - { os: macos-latest, target: aarch64-apple-darwin, use-pgo: true, use-cross: false, features: "std mmap no-format trim-file-lengths" }
 
           # Android Targets (Cross-compiled on Ubuntu)
           - { os: ubuntu-latest, target: x86_64-linux-android, use-pgo: false, use-cross: true, features: "std mmap" }
