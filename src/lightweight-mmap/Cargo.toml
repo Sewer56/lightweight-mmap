@@ -4,7 +4,7 @@ version = "0.7.1"
 edition = "2021"
 description = "Simple memory mapping helpers for Rust, with minimal amount of code generated."
 repository = "https://github.com/Sewer56/lightweight-mmap"
-license-file = "LICENSE"
+license-file = "../../LICENSE"
 include = ["src/**/*"]
 readme = "README.MD"
 
@@ -49,18 +49,3 @@ features = [
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dev-dependencies]
 tempfile = "3.23.0"
-
-# Profile Build
-[profile.profile]
-inherits = "release"
-debug = true
-codegen-units = 1
-lto = true
-strip = false        # No stripping!!
-
-# Optimized Release Build
-[profile.release]
-codegen-units = 1
-lto = true
-strip = true      # Automatically strip symbols from the binary.
-panic = "abort"
