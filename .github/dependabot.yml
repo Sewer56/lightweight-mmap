@@ -2,7 +2,7 @@ version: 2
 updates:
   # Enable version updates for Cargo
   - package-ecosystem: "cargo"
-    directory: "/"
+    directory: "src"
     schedule:
       interval: "weekly"
       day: "monday"
@@ -24,7 +24,6 @@ updates:
         patterns:
           - "criterion*"
           - "rstest*"
-          - "pprof*"
         update-types:
           - "minor"
           - "patch"
@@ -41,24 +40,15 @@ updates:
       include: "scope"
     # Allow automatic rebasing when conflicts occur
     rebase-strategy: "auto"
-  
-  # Enable version updates for Git submodules
-  - package-ecosystem: "gitsubmodule"
+
+  # Monitor GitHub Actions for dependency updates
+  - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
       day: "monday"
       time: "09:00"
       timezone: "Etc/UTC"
-    # Limit the number of open pull requests for version updates
-    open-pull-requests-limit: 3
-    # Add labels to categorize the PRs
     labels:
       - "dependencies"
-      - "submodule"
-    # Customize commit messages
-    commit-message:
-      prefix: "Updated:"
-      include: "scope"
-    # Allow automatic rebasing when conflicts occur
-    rebase-strategy: "auto" 
+      - "github-actions"

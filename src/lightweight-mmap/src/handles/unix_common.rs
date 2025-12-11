@@ -40,6 +40,7 @@ pub(crate) fn open_with_flags(path: &str, flags: c_int) -> Result<c_int, HandleO
 }
 
 #[cfg(unix)]
+#[allow(clippy::unnecessary_cast)] // st_size type varies across Unix platforms
 pub fn get_file_size(fd: c_int) -> Result<i64, HandleOpenError> {
     #[cfg(target_env = "gnu")]
     {
