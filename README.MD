@@ -12,7 +12,7 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-lightweight-mmap = "0.7.1"
+lightweight-mmap = "0.7"
 ```
 
 ```rust
