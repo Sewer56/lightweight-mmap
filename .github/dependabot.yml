@@ -51,4 +51,4 @@ updates:
       timezone: "Etc/UTC"
     labels:
       - "dependencies"
-      - "github-actions" 
+      - "github-actions"
