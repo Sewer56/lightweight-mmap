@@ -27,7 +27,7 @@ trim-file-lengths = []
 [dependencies]
 thiserror = "2.0.17"
 bitflags = "2.9.4"
-itoa = { version = "1.0.15", default-features = false, optional = true }
+itoa = { version = "1.0.16", default-features = false, optional = true }
 nanokit = { version = "0.2.0", features = ["no-inline-concat"], optional = true }
 
 [target.'cfg(unix)'.dependencies]
