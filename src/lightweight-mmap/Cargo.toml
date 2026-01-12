@@ -31,7 +31,7 @@ itoa = { version = "1.0.17", default-features = false, optional = true }
 nanokit = { version = "0.2.0", features = ["no-inline-concat"], optional = true }
 
 [target.'cfg(unix)'.dependencies]
-libc = "0.2.179"
+libc = "0.2.180"
 errno = "0.3.14"
 
 [target.'cfg(target_os = "windows")'.dependencies.windows-sys]
