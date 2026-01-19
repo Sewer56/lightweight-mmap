@@ -25,7 +25,7 @@ no-format = ["dep:itoa", "dep:nanokit"]
 trim-file-lengths = []
 
 [dependencies]
-thiserror = "2.0.17"
+thiserror = "2.0.18"
 bitflags = "2.9.4"
 itoa = { version = "1.0.17", default-features = false, optional = true }
 nanokit = { version = "0.2.0", features = ["no-inline-concat"], optional = true }
