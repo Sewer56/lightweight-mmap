@@ -26,12 +26,12 @@ trim-file-lengths = []
 
 [dependencies]
 thiserror = "2.0.18"
-bitflags = "2.11.0"
+bitflags = "2.11.1"
 itoa = { version = "1.0.18", default-features = false, optional = true }
 nanokit = { version = "0.2.0", features = ["no-inline-concat"], optional = true }
 
 [target.'cfg(unix)'.dependencies]
-libc = "0.2.184"
+libc = "0.2.186"
 errno = "0.3.14"
 
 [target.'cfg(target_os = "windows")'.dependencies.windows-sys]
